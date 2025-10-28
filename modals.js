@@ -308,9 +308,10 @@ const IconManagementModal = ({
   onSave,
   showNotification
 }) => {
-  const [localIcons, setLocalIcons] = useState([]);
+ const [localIcons, setLocalIcons] = useState([]);
+const [selectedIcons, setSelectedIcons] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
     if (showModal) {
       setLocalIcons([...icons]);
     }
@@ -337,7 +338,16 @@ const IconManagementModal = ({
       setLocalIcons(localIcons.filter(icon => icon.id !== iconId));
     }
   };
-
+const handleBatchDelete = () => {
+  if (selectedIcons.length === 0) {
+    alert('请先选择要删除的图标');
+    return;
+  }
+  if (window.confirm(`确定要删除选中的 ${selectedIcons.length} 个图标吗？`)) {
+    setLocalIcons(localIcons.filter(icon => !selectedIcons.includes(icon.id)));
+    setSelectedIcons([]);
+  }
+};
   const handleDownload = (icon) => {
     const link = document.createElement('a');
     link.href = icon.data;
@@ -380,8 +390,20 @@ const IconManagementModal = ({
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-            {localIcons.map(icon => (
-              <div key={icon.id} className="border border-gray-200 rounded-xl p-3 space-y-2">
+  {localIcons.map(icon => (
+  <div key={icon.id} className={`border-2 ${selectedIcons.includes(icon.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'} rounded-xl p-3 space-y-2 relative`}>
+    <input
+      type="checkbox"
+      checked={selectedIcons.includes(icon.id)}
+      onChange={(e) => {
+        if (e.target.checked) {
+          setSelectedIcons([...selectedIcons, icon.id]);
+        } else {
+          setSelectedIcons(selectedIcons.filter(id => id !== icon.id));
+        }
+      }}
+      className="absolute top-2 right-2 w-5 h-5 cursor-pointer"
+    />
                 <div className="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
                   <img src={icon.data} alt={icon.name} className="max-w-full max-h-full object-contain" />
                 </div>

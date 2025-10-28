@@ -82,13 +82,13 @@ const Sidebar = ({
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
               >
                  <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
-                    {category.icon && category.icon.startsWith('data:image') ? (
-                      <img src={category.icon} alt={category.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xl">{category.icon || '🔑'}</span>
-                    )}
-                  </div>
+<div className={`w-10 h-10 ${category.icon && category.icon.startsWith('data:image') ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+  {category.icon && category.icon.startsWith('data:image') ? (
+    <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
+  ) : (
+    <span className="text-xl">{category.icon || '🔑'}</span>
+  )}
+</div>
                   <span className="font-semibold text-gray-700 text-sm">{category.name}</span>
                 </div>
                 <Icon name={expandedCategories[category.id] ? 'ChevronDown' : 'ChevronRight'} className="w-4 h-4 text-gray-400" />
