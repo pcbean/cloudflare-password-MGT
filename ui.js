@@ -96,29 +96,57 @@ const Sidebar = ({
               </button>
             </div>
             
-            {expandedCategories[category.id] && category.subcategories?.map(subcategory => (
-              <div key={subcategory.id} className="ml-6 space-y-1">
-                <div className="flex items-center justify-between px-3 py-2">
-                  <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
-                </div>
-                {subcategory.items?.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedItem(item)}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
-                      selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                      {item.website[0]?.toUpperCase()}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-gray-800">{item.website}</div>
-                      <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
-                    </div>
-                  </button>
-                ))}
+            {expandedCategories[category.id] && (
+  <>
+    {/* 先渲染“默认”子分类中的所有密码项，直接显示在大类展开区域 */}
+    {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
+      <button
+        key={item.id}
+        onClick={() => setSelectedItem(item)}
+        className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
+          selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+        }`}
+      >
+        <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+          {item.website[0]?.toUpperCase()}
+        </div>
+        <div className="flex-1 text-left">
+          <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+          <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+        </div>
+      </button>
+    ))}
+
+    {/* 渲染其他非“默认”子分类 */}
+    {category.subcategories
+      ?.filter(sub => sub.name !== '默认')
+      .map(subcategory => (
+        <div key={subcategory.id} className="ml-6 space-y-1">
+          <div className="flex items-center justify-between px-3 py-2">
+            <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
+          </div>
+          {subcategory.items?.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setSelectedItem(item)}
+              className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
+                selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+              }`}
+            >
+              <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+                {item.website[0]?.toUpperCase()}
               </div>
+              <div className="flex-1 text-left">
+                <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+                <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      ))
+    }
+  </>
+)}
             ))}
           </div>
         ))}
