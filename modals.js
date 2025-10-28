@@ -180,6 +180,99 @@ const CategoryManagementModal = ({
   onSave,
   showNotification
 }) => {
+  const [localCategories, setLocalCategories] = useState([]);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingSubcategory, setEditingSubcategory] = useState(null);
+
+  useEffect(() => {
+    if (showModal) {
+      setLocalCategories([...categories]);
+    }
+  }, [showModal, categories]);
+
+  const handleAddCategory = () => {
+    const colors = [
+      'from-blue-500 to-cyan-500',
+      'from-purple-500 to-pink-500',
+      'from-green-500 to-emerald-500',
+      'from-orange-500 to-red-500',
+      'from-indigo-500 to-purple-500'
+    ];
+    const newCategory = {
+      id: Date.now().toString(),
+      name: '新分类',
+      icon: '🔑',
+      color: colors[Math.floor(Math.random() * colors.length)],
+      subcategories: []
+    };
+    setLocalCategories([...localCategories, newCategory]);
+    setEditingCategory(newCategory.id);
+  };
+
+  const handleDeleteCategory = (categoryId) => {
+    if (window.confirm('确定要删除这个分类吗?所有子分类和密码项也会被删除!')) {
+      setLocalCategories(localCategories.filter(cat => cat.id !== categoryId));
+    }
+  };
+
+  const handleUpdateCategoryName = (categoryId, newName) => {
+    setLocalCategories(localCategories.map(cat => 
+      cat.id === categoryId ? { ...cat, name: newName } : cat
+    ));
+  };
+
+  const handleAddSubcategory = (categoryId) => {
+    setLocalCategories(localCategories.map(cat => {
+      if (cat.id === categoryId) {
+        const newSub = {
+          id: `${categoryId}-${Date.now()}`,
+          name: '新子分类',
+          items: []
+        };
+        return {
+          ...cat,
+          subcategories: [...(cat.subcategories || []), newSub]
+        };
+      }
+      return cat;
+    }));
+    setEditingSubcategory(`${categoryId}-${Date.now()}`);
+  };
+
+  const handleDeleteSubcategory = (categoryId, subcategoryId) => {
+    if (window.confirm('确定要删除这个子分类吗?所有密码项也会被删除!')) {
+      setLocalCategories(localCategories.map(cat => {
+        if (cat.id === categoryId) {
+          return {
+            ...cat,
+            subcategories: cat.subcategories.filter(sub => sub.id !== subcategoryId)
+          };
+        }
+        return cat;
+      }));
+    }
+  };
+
+  const handleUpdateSubcategoryName = (categoryId, subcategoryId, newName) => {
+    setLocalCategories(localCategories.map(cat => {
+      if (cat.id === categoryId) {
+        return {
+          ...cat,
+          subcategories: cat.subcategories.map(sub => 
+            sub.id === subcategoryId ? { ...sub, name: newName } : sub
+          )
+        };
+      }
+      return cat;
+    }));
+  };
+
+  const handleSave = async () => {
+    await onSave(localCategories);
+    setShowModal(false);
+    showNotification('分类已保存');
+  };
+
   if (!showModal) return null;
 
   return (
@@ -193,11 +286,102 @@ const CategoryManagementModal = ({
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="text-center py-12 text-gray-400">
-            <span className="text-4xl mb-4 block">📁</span>
-            <p>分类管理功能开发中...</p>
-          </div>
+        <div className="p-6 space-y-4">
+          <button
+            onClick={handleAddCategory}
+            className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-600 transition flex items-center justify-center"
+          >
+            <Icon name="Plus" className="w-5 h-5 mr-2" />
+            <span>添加大类</span>
+          </button>
+
+          {localCategories.map(category => (
+            <div key={category.id} className="border-2 border-gray-200 rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center text-xl shadow-sm`}>
+                  {category.icon}
+                </div>
+                
+                {editingCategory === category.id ? (
+                  <input
+                    type="text"
+                    value={category.name}
+                    onChange={(e) => handleUpdateCategoryName(category.id, e.target.value)}
+                    onBlur={() => setEditingCategory(null)}
+                    autoFocus
+                    className="flex-1 px-3 py-2 border border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                ) : (
+                  <span className="flex-1 font-semibold text-gray-800">{category.name}</span>
+                )}
+
+                <button
+                  onClick={() => setEditingCategory(category.id)}
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                  title="编辑分类名"
+                >
+                  <Icon name="Edit" className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleAddSubcategory(category.id)}
+                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                  title="添加子分类"
+                >
+                  <Icon name="Plus" className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteCategory(category.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                  title="删除分类"
+                >
+                  <Icon name="Trash2" className="w-4 h-4" />
+                </button>
+              </div>
+
+              {category.subcategories && category.subcategories.length > 0 && (
+                <div className="ml-6 space-y-2 pl-4 border-l-2 border-gray-200">
+                  {category.subcategories.map(sub => (
+                    <div key={sub.id} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                      {editingSubcategory === sub.id ? (
+                        <input
+                          type="text"
+                          value={sub.name}
+                          onChange={(e) => handleUpdateSubcategoryName(category.id, sub.id, e.target.value)}
+                          onBlur={() => setEditingSubcategory(null)}
+                          autoFocus
+                          className="flex-1 px-3 py-1 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                      ) : (
+                        <span className="flex-1 text-sm text-gray-700">{sub.name} ({sub.items?.length || 0})</span>
+                      )}
+                      
+                      <button
+                        onClick={() => setEditingSubcategory(sub.id)}
+                        className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                        title="编辑子分类"
+                      >
+                        <Icon name="Edit" className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSubcategory(category.id, sub.id)}
+                        className="p-1 text-red-600 hover:bg-red-100 rounded"
+                        title="删除子分类"
+                      >
+                        <Icon name="Trash2" className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {localCategories.length === 0 && (
+            <div className="text-center py-12 text-gray-400">
+              <span className="text-4xl mb-4 block">📁</span>
+              <p>还没有分类,点击上方按钮添加</p>
+            </div>
+          )}
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
@@ -205,7 +389,13 @@ const CategoryManagementModal = ({
             onClick={() => setShowModal(false)}
             className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
           >
-            关闭
+            取消
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg hover:shadow-lg transition"
+          >
+            保存
           </button>
         </div>
       </div>
