@@ -298,10 +298,13 @@ const CategoryManagementModal = ({
           {localCategories.map(category => (
             <div key={category.id} className="border-2 border-gray-200 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center text-xl shadow-sm`}>
-                  {category.icon}
-                </div>
-                
+                <div className={`w-10 h-10 ${category.icon && category.icon.startsWith('data:image') ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+  {category.icon && category.icon.startsWith('data:image') ? (
+    <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
+  ) : (
+    <span className="text-xl">{category.icon || '🔑'}</span>
+  )}
+</div>
                 {editingCategory === category.id ? (
                   <input
                     type="text"
