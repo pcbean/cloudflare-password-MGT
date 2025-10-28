@@ -27,8 +27,8 @@ const AddPasswordModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.categoryId || !formData.website || !formData.username || !formData.password) {
-      alert('请填写必填字段');
+    if (!formData.categoryId || !formData.website) {
+      alert('请填写分类和网站名称');
       return;
     }
     onAdd(formData);
