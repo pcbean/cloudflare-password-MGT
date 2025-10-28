@@ -340,24 +340,16 @@ const PasswordDetail = ({
                     </div>
                   </div>
                   
-                  {account.username && (
+                                   {account.username && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">用户名</label>
-                                            <div className="flex items-center space-x-1 md:space-x-2">
+                      <div className="flex items-center space-x-1 md:space-x-2">
                         <input
                           type="text"
                           value={account.username}
-                          readOnly={!editingAccount[`${selectedItem.id}-${index}-username`]}
-                          onChange={(e) => onEditField(selectedItem.id, index, 'username', e.target.value)}
+                          readOnly
                           className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
                         />
-                        <button
-                          onClick={() => onToggleEdit(selectedItem.id, index, 'username')}
-                          className="p-2 md:p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm flex-shrink-0"
-                          title={editingAccount[`${selectedItem.id}-${index}-username`] ? '保存' : '编辑'}
-                        >
-                          <Icon name={editingAccount[`${selectedItem.id}-${index}-username`] ? 'Check' : 'Edit'} className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
                         <button
                           onClick={() => onCopy(account.username, '用户名')}
                           className="p-2 md:p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm flex-shrink-0"
@@ -368,24 +360,16 @@ const PasswordDetail = ({
                     </div>
                   )}
 
-                  {account.password && (
+                                  {account.password && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">密码</label>
-                                            <div className="flex items-center space-x-1 md:space-x-2">
+                      <div className="flex items-center space-x-1 md:space-x-2">
                         <input
                           type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
                           value={account.password}
-                          readOnly={!editingAccount[`${selectedItem.id}-${index}-password`]}
-                          onChange={(e) => onEditField(selectedItem.id, index, 'password', e.target.value)}
+                          readOnly
                           className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
                         />
-                        <button
-                          onClick={() => onToggleEdit(selectedItem.id, index, 'password')}
-                          className="p-2 md:p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm flex-shrink-0"
-                          title={editingAccount[`${selectedItem.id}-${index}-password`] ? '保存' : '编辑'}
-                        >
-                          <Icon name={editingAccount[`${selectedItem.id}-${index}-password`] ? 'Check' : 'Edit'} className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
                         <button
                           onClick={() => setShowPassword(prev => ({
                             ...prev,
