@@ -374,9 +374,9 @@ const handleBatchDelete = () => {
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-600 transition flex items-center justify-center cursor-pointer">
+                <div className="p-6 space-y-4">
+          <div className="flex gap-3">
+            <label className="flex-1 py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-600 transition flex items-center justify-center cursor-pointer">
               <input
                 type="file"
                 accept="image/*"
@@ -387,6 +387,16 @@ const handleBatchDelete = () => {
               <Icon name="Plus" className="w-5 h-5 mr-2" />
               <span>上传图标</span>
             </label>
+            
+            {selectedIcons.length > 0 && (
+              <button
+                onClick={handleBatchDelete}
+                className="px-6 py-4 bg-red-500 text-white rounded-xl hover:bg-red-600 transition flex items-center justify-center"
+              >
+                <Icon name="Trash2" className="w-5 h-5 mr-2" />
+                <span>删除选中 ({selectedIcons.length})</span>
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-4 gap-4">
