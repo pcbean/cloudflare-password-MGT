@@ -333,9 +333,9 @@ useEffect(() => {
     });
   };
 
-  const handleDelete = (iconId) => {
+    const handleDelete = (iconId) => {
     if (window.confirm('确定要删除这个图标吗?')) {
-      setLocalIcons(localIcons.filter(icon => icon.id !== iconId));
+      setLocalIcons(prev => prev.filter(icon => icon.id !== iconId));
     }
   };
 const handleBatchDelete = () => {
@@ -343,8 +343,8 @@ const handleBatchDelete = () => {
     alert('请先选择要删除的图标');
     return;
   }
-  if (window.confirm(`确定要删除选中的 ${selectedIcons.length} 个图标吗？`)) {
-    setLocalIcons(localIcons.filter(icon => !selectedIcons.includes(icon.id)));
+  if (window.confirm(`确定要删除选中的 ${selectedIcons.length} 个图标吗?`)) {
+    setLocalIcons(prev => prev.filter(icon => !selectedIcons.includes(icon.id)));
     setSelectedIcons([]);
   }
 };
