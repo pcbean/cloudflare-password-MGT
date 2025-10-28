@@ -81,9 +81,13 @@ const Sidebar = ({
                 onClick={() => toggleCategory(category.id)}
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
               >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center text-xl shadow-sm`}>
-                    {category.icon}
+                 <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+                    {category.icon && category.icon.startsWith('data:image') ? (
+                      <img src={category.icon} alt={category.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl">{category.icon || '🔑'}</span>
+                    )}
                   </div>
                   <span className="font-semibold text-gray-700 text-sm">{category.name}</span>
                 </div>
