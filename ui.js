@@ -270,8 +270,8 @@ const PasswordDetail = ({
 }) => {
   if (!selectedItem) return <EmptyState />;
 
-    return (
-    <div className="w-full mx-auto space-y-6">
+   return (
+    <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
