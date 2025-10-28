@@ -280,21 +280,21 @@ const AddPasswordModal = ({
             </select>
           </div>
 
-          {selectedCategory && category?.subcategories?.length > 0 && (
-            <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">选择子分类 (选填)</label>
-              <select
-                value={selectedSubcategory}
-                onChange={(e) => setSelectedSubcategory(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-              >
-                <option value="">大类（无子分类）</option>
-                {category.subcategories.map(sub => (
-                  <option key={sub.id} value={sub.id}>{sub.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
+{selectedCategory && (
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-2">选择子分类 (选填)</label>
+    <select
+      value={selectedSubcategory}
+      onChange={(e) => setSelectedSubcategory(e.target.value)}
+      className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
+    >
+      <option value="">大类(无子分类)</option>
+      {category?.subcategories?.map(sub => (
+        <option key={sub.id} value={sub.id}>{sub.name}</option>
+      ))}
+    </select>
+  </div>
+)}
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">网站名称 *</label>

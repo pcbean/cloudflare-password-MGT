@@ -10,17 +10,20 @@ const updatedCategories = categories.map(cat => {
     const newItem = {
       id: Date.now().toString(),
       website,
-      url,
-      favicon: getFaviconUrl(url),
+      url: url || `https://${website}`,
+      favicon: getFaviconUrl(url || `https://${website}`),
       accounts: [{ username, password, note: note || '' }]
     };
     
-    // 如果没有选择子分类，直接添加到大类下
+    // 如果没有选择子分类,直接添加到大类下
     if (!subcategoryId) {
-      // 查找或创建"大类"子分类
-      let mainSub = cat.subcategories.find(sub => sub.name === cat.name);
+      // 确保 subcategories 数组存在
+      const subcategories = cat.subcategories || [];
+      // 查找或创建与大类同名的子分类
+      let mainSub = subcategories.find(sub => sub.name === cat.name);
+      
       if (!mainSub) {
-        // 创建与大类同名的子分类
+        // 创建与大类同名的子分类并添加到最前面
         return {
           ...cat,
           subcategories: [
@@ -29,18 +32,18 @@ const updatedCategories = categories.map(cat => {
               name: cat.name,
               items: [newItem]
             },
-            ...cat.subcategories
+            ...subcategories
           ]
         };
       } else {
         // 添加到已存在的大类子分类
         return {
           ...cat,
-          subcategories: cat.subcategories.map(sub => {
+          subcategories: subcategories.map(sub => {
             if (sub.name === cat.name) {
               return {
                 ...sub,
-                items: [...sub.items, newItem]
+                items: [...(sub.items || []), newItem]
               };
             }
             return sub;
@@ -49,14 +52,14 @@ const updatedCategories = categories.map(cat => {
       }
     }
     
-    // 如果选择了子分类，添加到指定子分类
+    // 如果选择了子分类,添加到指定子分类
     return {
       ...cat,
-      subcategories: cat.subcategories.map(sub => {
+      subcategories: (cat.subcategories || []).map(sub => {
         if (sub.id === subcategoryId) {
           return {
             ...sub,
-            items: [...sub.items, newItem]
+            items: [...(sub.items || []), newItem]
           };
         }
         return sub;
