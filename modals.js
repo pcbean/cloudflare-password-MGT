@@ -222,20 +222,21 @@ const AddPasswordModal = ({
     }
   }, [showModal, selectedCategoryId]);
 
-  const handleSubmit = () => {
+const handleSubmit = () => {
+  // 只验证必填项：分类、网站名称、用户名、密码
   if (!selectedCategory || !website || !username || !password) {
     alert('请填写所有必填项');
     return;
   }
-    onAdd({
-      categoryId: selectedCategory,
-      subcategoryId: selectedSubcategory,
-      website,
-      url: url || `https://${website}`,
-      username,
-      password,
-      note
-    });
+  onAdd({
+  categoryId: selectedCategory,
+  subcategoryId: selectedSubcategory || '', // 确保传递空字符串而不是 undefined
+  website,
+  url: url || `https://${website}`,
+  username,
+  password,
+  note
+});
 
     // 重置表单
     setSelectedCategory('');
