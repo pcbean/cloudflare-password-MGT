@@ -253,6 +253,7 @@ const PasswordDetail = ({
   onToggleEdit,
   onEditField,
   onAddAccount,
+  onEdit,
   onSelectIcon
 }) => {
   if (!selectedItem) return <EmptyState />;
