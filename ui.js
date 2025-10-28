@@ -326,11 +326,11 @@ const PasswordDetail = ({
         </div>
 
         <div className="p-6">
-          <div className="space-y-4">
+                    <div className="space-y-4">
             {selectedItem.accounts?.map((account, index) => {
               const strength = getPasswordStrength(account.password);
               return (
-                <div key={index} className="bg-gray-50 rounded-xl p-5 space-y-4 border border-gray-200">
+                <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-gray-700">账户 {index + 1}</span>
@@ -371,13 +371,13 @@ const PasswordDetail = ({
                   {account.password && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">密码</label>
-                                            <div className="flex items-center space-x-1 md:space-x-2">
+                         <div className="flex items-center gap-1.5 md:gap-2">
                         <input
-                          type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
-                          value={account.password}
-                          readOnly={!editingAccount[`${selectedItem.id}-${index}-password`]}
-                          onChange={(e) => onEditField(selectedItem.id, index, 'password', e.target.value)}
-                          className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                          type="text"
+                          value={account.username}
+                          readOnly={!editingAccount[`${selectedItem.id}-${index}-username`]}
+                          onChange={(e) => onEditField(selectedItem.id, index, 'username', e.target.value)}
+                          className="flex-1 min-w-0 px-2 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
                         />
                         <button
                           onClick={() => onToggleEdit(selectedItem.id, index, 'password')}
