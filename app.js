@@ -531,7 +531,7 @@ function PasswordManager() {
         
         <SecurityProgressBar categories={categories} />
 
-        <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-2 md:p-4">
           <PasswordDetail 
             selectedItem={selectedItem}
             showPassword={showPassword}
