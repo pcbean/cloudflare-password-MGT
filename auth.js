@@ -4,10 +4,19 @@ const { useState } = React;
 const LoginPage = ({ onLogin }) => {
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin(loginUsername, loginPassword);
+    setErrorMessage(''); // 清除之前的错误信息
+    const result = onLogin(loginUsername, loginPassword);
+    
+    // 如果登录失败,显示错误信息
+    if (result === false) {
+      setErrorMessage('用户名或密码错误,请重试');
+      // 3秒后自动清除错误信息
+      setTimeout(() => setErrorMessage(''), 3000);
+    }
   };
 
   return (
@@ -20,6 +29,14 @@ const LoginPage = ({ onLogin }) => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">密码管理器</h1>
           <p className="text-gray-500">安全存储您的所有密码</p>
         </div>
+        
+        {/* 错误提示 */}
+        {errorMessage && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2 animate-slide-in">
+            <Icon name="AlertCircle" className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <span className="text-sm text-red-600 font-medium">{errorMessage}</span>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -52,8 +69,7 @@ const LoginPage = ({ onLogin }) => {
         
         <div className="mt-6 p-4 bg-gray-50 rounded-xl">
           <p className="text-xs text-gray-600 text-center">
-            在 Cloudflare Pages 环境变量中配置:<br/>
-            username1, password1, username2, password2...
+            这是一个私人用途的密码管理器:<br/>
           </p>
         </div>
       </div>

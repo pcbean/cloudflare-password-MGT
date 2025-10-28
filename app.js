@@ -210,13 +210,14 @@ function PasswordManager() {
     }
   };
 
-  const handleLogin = (username, password) => {
+    const handleLogin = (username, password) => {
     if (adminUsers[username] && adminUsers[username] === password) {
       setIsAuthenticated(true);
       setCurrentUser(username);
       showNotificationFunc(`欢迎回来, ${username}!`);
+      return true;
     } else {
-      showNotificationFunc('用户名或密码错误', 'error');
+      return false;
     }
   };
 
