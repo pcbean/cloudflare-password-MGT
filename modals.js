@@ -222,31 +222,29 @@ const AddPasswordModal = ({
     }
   }, [showModal, selectedCategoryId]);
 
+// 【替换为】
 const handleSubmit = () => {
-  // 只验证必填项：分类、网站名称、用户名、密码
-  if (!selectedCategory || !website || !username || !password) {
-    alert('请填写所有必填项');
-    return;
-  }
+  // 取消所有必填项校验，直接提交
   onAdd({
-  categoryId: selectedCategory,
-  subcategoryId: selectedSubcategory || '', // 确保传递空字符串而不是 undefined
-  website,
-  url: url || `https://${website}`,
-  username,
-  password,
-  note
-});
+    categoryId: selectedCategory,
+    subcategoryId: selectedSubcategory || '',
+    website,
+    url: url || `https://${website}`,
+    username,
+    password,
+    note
+  });
 
-    // 重置表单
-    setSelectedCategory('');
-    setSelectedSubcategory('');
-    setWebsite('');
-    setUrl('');
-    setUsername('');
-    setPassword('');
-    setNote('');
-  };
+  // 重置表单
+  setSelectedCategory('');
+  setSelectedSubcategory('');
+  setWebsite('');
+  setUrl('');
+  setUsername('');
+  setPassword('');
+  setNote('');
+};
+// 【替换完成】
 
   if (!showModal) return null;
 
