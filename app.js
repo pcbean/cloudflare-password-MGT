@@ -343,8 +343,7 @@ function PasswordManager() {
       showNotificationFunc('删除失败', 'error');
     }
   };
-
-  const handleAddPassword = async (newPasswordData) => {
+    const handleAddPassword = async (newPasswordData) => {
     try {
       const updatedCategories = await addNewPassword(
         newPasswordData,
@@ -379,7 +378,7 @@ function PasswordManager() {
     setShowIconSelectorModal(true);
   };
 
-   const handleIconSelect = async (iconData) => {
+  const handleIconSelect = async (iconData) => {
     if (!iconSelectorTarget) return;
     
     const { type, id } = iconSelectorTarget;
@@ -407,6 +406,84 @@ function PasswordManager() {
     showNotificationFunc('图标已更新');
   };
 
+  const handleEditItem = async (editedData) => {
+    try {
+      let updatedCategories = categories.map(cat => ({
+        ...cat,
+        subcategories: cat.subcategories.map(sub => ({
+          ...sub,
+          items: sub.items.filter(item => item.id !== itemToEdit.id)
+        })).filter(sub => sub.items.length > 0)
+      })).filter(cat => cat.subcategories.length > 0);
+
+      const updatedItem = {
+        ...itemToEdit,
+        website: editedData.website,
+        url: editedData.url,
+        accounts: editedData.accounts
+      };
+
+      updatedCategories = updatedCategories.map(cat => {
+        if (cat.id === editedData.categoryId) {
+          if (!editedData.subcategoryId) {
+            let defaultSub = cat.subcategories.find(sub => sub.name === '默认');
+            
+            if (!defaultSub) {
+              return {
+                ...cat,
+                subcategories: [
+                  {
+                    id: `${cat.id}-default`,
+                    name: '默认',
+                    items: [updatedItem]
+                  },
+                  ...cat.subcategories
+                ]
+              };
+            } else {
+              return {
+                ...cat,
+                subcategories: cat.subcategories.map(sub => {
+                  if (sub.name === '默认') {
+                    return {
+                      ...sub,
+                      items: [...sub.items, updatedItem]
+                    };
+                  }
+                  return sub;
+                })
+              };
+            }
+          }
+          
+          return {
+            ...cat,
+            subcategories: cat.subcategories.map(sub => {
+              if (sub.id === editedData.subcategoryId) {
+                return {
+                  ...sub,
+                  items: [...sub.items, updatedItem]
+                };
+              }
+              return sub;
+            })
+          };
+        }
+        return cat;
+      });
+
+      await saveData(updatedCategories);
+      const newUpdatedItem = updatedCategories
+        .flatMap(c => c.subcategories.flatMap(s => s.items))
+        .find(i => i.id === itemToEdit.id);
+      setSelectedItem(newUpdatedItem);
+      setShowEditItemModal(false);
+      setItemToEdit(null);
+      showNotificationFunc('项目已更新');
+    } catch (error) {
+      showNotificationFunc('更新失败', 'error');
+    }
+  };
 
   if (!isAuthenticated) {
     return <LoginPage onLogin={handleLogin} />;
@@ -455,7 +532,7 @@ function PasswordManager() {
         <SecurityProgressBar categories={categories} />
 
         <div className="flex-1 overflow-y-auto p-6">
-                  <PasswordDetail 
+          <PasswordDetail 
             selectedItem={selectedItem}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -498,7 +575,7 @@ function PasswordManager() {
         showNotification={showNotificationFunc}
       />
 
-                      <IconSelectorModal 
+      <IconSelectorModal 
         showModal={showIconSelectorModal}
         setShowModal={setShowIconSelectorModal}
         icons={uploadedIcons}
