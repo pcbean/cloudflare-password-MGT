@@ -222,31 +222,27 @@ const AddPasswordModal = ({
     }
   }, [showModal, selectedCategoryId]);
 
-// 【替换为】
-const handleSubmit = () => {
-  // 取消所有必填项校验，直接提交
-  onAdd({
-    categoryId: selectedCategory,
-    subcategoryId: selectedSubcategory || '',
-    website,
-    url: url || `https://${website}`,
-    username,
-    password,
-    note
-  });
-  // 重置表单...
-};
+  const handleSubmit = () => {
+    onAdd({
+      categoryId: selectedCategory || categories[0]?.id || '',
+      subcategoryId: selectedSubcategory || '',
+      website: website || '未命名网站',
+      url: url || (website ? `https://${website}` : 'https://example.com'),
+      username: username || '',
+      password: password || '',
+      note: note || ''
+    });
 
-  // 重置表单
-  setSelectedCategory('');
-  setSelectedSubcategory('');
-  setWebsite('');
-  setUrl('');
-  setUsername('');
-  setPassword('');
-  setNote('');
-};
-// 【替换完成】
+    // 重置表单
+    setSelectedCategory('');
+    setSelectedSubcategory('');
+    setWebsite('');
+    setUrl('');
+    setUsername('');
+    setPassword('');
+    setNote('');
+    setShowModal(false);
+  };
 
   if (!showModal) return null;
 
@@ -265,7 +261,7 @@ const handleSubmit = () => {
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">选择分类 *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">选择分类</label>
             <select
               value={selectedCategory}
               onChange={(e) => {
@@ -281,24 +277,24 @@ const handleSubmit = () => {
             </select>
           </div>
 
-{selectedCategory && (
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-2">选择子分类 (选填)</label>
-    <select
-      value={selectedSubcategory}
-      onChange={(e) => setSelectedSubcategory(e.target.value)}
-      className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-    >
-      <option value="">大类(无子分类)</option>
-      {category?.subcategories?.map(sub => (
-        <option key={sub.id} value={sub.id}>{sub.name}</option>
-      ))}
-    </select>
-  </div>
-)}
+          {selectedCategory && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">选择子分类 (选填)</label>
+              <select
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
+              >
+                <option value="">大类(无子分类)</option>
+                {category?.subcategories?.map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">网站名称 *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">网站名称</label>
             <input
               type="text"
               value={website}
@@ -320,7 +316,7 @@ const handleSubmit = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">用户名 *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">用户名</label>
             <input
               type="text"
               value={username}
@@ -331,7 +327,7 @@ const handleSubmit = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">密码 *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">密码</label>
             <input
               type="password"
               value={password}

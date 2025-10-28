@@ -4,70 +4,76 @@ const { useState } = React;
 // 添加新密码
 const addNewPassword = async (newPasswordData, categories, saveData, showNotification) => {
   const { categoryId, subcategoryId, website, url, username, password, note } = newPasswordData;
+  
+  // 如果没有分类，创建默认分类
+  if (!categoryId && categories.length === 0) {
+    showNotification('请先创建分类', 'error');
+    return null;
+  }
 
-const updatedCategories = categories.map(cat => {
-  if (cat.id === categoryId) {
-    const newItem = {
-      id: Date.now().toString(),
-      website,
-      url: url || `https://${website}`,
-      favicon: getFaviconUrl(url || `https://${website}`),
-      accounts: [{ username, password, note: note || '' }]
-    };
-    
-    // 如果没有选择子分类,直接添加到大类下
-    if (!subcategoryId) {
-  // 确保 subcategories 数组存在,如果不存在则初始化为空数组
-  const subcategories = cat.subcategories || [];
-  // 查找是否已有与大类同名的子分类
-  let mainSub = subcategories.find(sub => sub.name === cat.name);
+  const updatedCategories = categories.map(cat => {
+    if (cat.id === categoryId) {
+      const newItem = {
+        id: Date.now().toString(),
+        website,
+        url: url || `https://${website}`,
+        favicon: getFaviconUrl(url || `https://${website}`),
+        accounts: [{ username, password, note: note || '' }]
+      };
       
-      if (!mainSub) {
-        // 创建与大类同名的子分类并添加到最前面
-        return {
-          ...cat,
-          subcategories: [
-            {
-              id: `${categoryId}-main`,
-              name: cat.name,
-              items: [newItem]
-            },
-            ...subcategories
-          ]
-        };
-      } else {
-        // 添加到已存在的大类子分类
-        return {
-          ...cat,
-          subcategories: subcategories.map(sub => {
-            if (sub.name === cat.name) {
-              return {
-                ...sub,
-                items: [...(sub.items || []), newItem]
-              };
-            }
-            return sub;
-          })
-        };
-      }
-    }
-    
-    // 如果选择了子分类,添加到指定子分类
-    return {
-      ...cat,
-      subcategories: (cat.subcategories || []).map(sub => {
-        if (sub.id === subcategoryId) {
+      // 如果没有选择子分类,直接添加到大类下
+      if (!subcategoryId) {
+        // 确保 subcategories 数组存在,如果不存在则初始化为空数组
+        const subcategories = cat.subcategories || [];
+        // 查找是否已有与大类同名的子分类
+        let mainSub = subcategories.find(sub => sub.name === cat.name);
+        
+        if (!mainSub) {
+          // 创建与大类同名的子分类并添加到最前面
           return {
-            ...sub,
-            items: [...(sub.items || []), newItem]
+            ...cat,
+            subcategories: [
+              {
+                id: `${categoryId}-main`,
+                name: cat.name,
+                items: [newItem]
+              },
+              ...subcategories
+            ]
+          };
+        } else {
+          // 添加到已存在的大类子分类
+          return {
+            ...cat,
+            subcategories: subcategories.map(sub => {
+              if (sub.name === cat.name) {
+                return {
+                  ...sub,
+                  items: [...(sub.items || []), newItem]
+                };
+              }
+              return sub;
+            })
           };
         }
-        return sub;
-      })
-    };
-  }
-  return cat;
-});
+      }
+      
+      // 如果选择了子分类,添加到指定子分类
+      return {
+        ...cat,
+        subcategories: (cat.subcategories || []).map(sub => {
+          if (sub.id === subcategoryId) {
+            return {
+              ...sub,
+              items: [...(sub.items || []), newItem]
+            };
+          }
+          return sub;
+        })
+      };
+    }
+    return cat;
+  });
 
   try {
     await saveData(updatedCategories);

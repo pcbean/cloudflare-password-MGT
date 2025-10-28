@@ -106,8 +106,9 @@ const filterItems = (categories, searchTerm) => {
 
 // 添加新项目
 const addNewItem = async (newItem, categories, saveData, showNotification) => {
-  if (!newItem.category || !newItem.website) {
-    showNotification('请填写必要信息', 'error');
+  // 移除必填校验，允许空值
+  if (!newItem.category && categories.length === 0) {
+    showNotification('至少需要一个分类', 'error');
     return null;
   }
 
