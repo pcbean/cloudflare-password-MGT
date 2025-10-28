@@ -5,30 +5,66 @@ const { useState } = React;
 const addNewPassword = async (newPasswordData, categories, saveData, showNotification) => {
   const { categoryId, subcategoryId, website, url, username, password, note } = newPasswordData;
 
-  const updatedCategories = categories.map(cat => {
-    if (cat.id === categoryId) {
-      return {
-        ...cat,
-        subcategories: cat.subcategories.map(sub => {
-          if (sub.id === subcategoryId) {
-            const newItem = {
-              id: Date.now().toString(),
-              website,
-              url,
-              favicon: getFaviconUrl(url),
-              accounts: [{ username, password, note: note || '' }]
-            };
-            return {
-              ...sub,
-              items: [...sub.items, newItem]
-            };
-          }
-          return sub;
-        })
-      };
+const updatedCategories = categories.map(cat => {
+  if (cat.id === categoryId) {
+    const newItem = {
+      id: Date.now().toString(),
+      website,
+      url,
+      favicon: getFaviconUrl(url),
+      accounts: [{ username, password, note: note || '' }]
+    };
+    
+    // 如果没有选择子分类，直接添加到大类下
+    if (!subcategoryId) {
+      // 查找或创建"大类"子分类
+      let mainSub = cat.subcategories.find(sub => sub.name === cat.name);
+      if (!mainSub) {
+        // 创建与大类同名的子分类
+        return {
+          ...cat,
+          subcategories: [
+            {
+              id: `${categoryId}-main`,
+              name: cat.name,
+              items: [newItem]
+            },
+            ...cat.subcategories
+          ]
+        };
+      } else {
+        // 添加到已存在的大类子分类
+        return {
+          ...cat,
+          subcategories: cat.subcategories.map(sub => {
+            if (sub.name === cat.name) {
+              return {
+                ...sub,
+                items: [...sub.items, newItem]
+              };
+            }
+            return sub;
+          })
+        };
+      }
     }
-    return cat;
-  });
+    
+    // 如果选择了子分类，添加到指定子分类
+    return {
+      ...cat,
+      subcategories: cat.subcategories.map(sub => {
+        if (sub.id === subcategoryId) {
+          return {
+            ...sub,
+            items: [...sub.items, newItem]
+          };
+        }
+        return sub;
+      })
+    };
+  }
+  return cat;
+});
 
   try {
     await saveData(updatedCategories);
