@@ -1,8 +1,11 @@
-// 图标管理模态框
-const IconManagementModal = ({ 
+// 二级页面模态框组件
+const { useState, useEffect } = React;
+
+// 分类管理模态框
+const CategoryManagementModal = ({ 
   showModal, 
   setShowModal, 
-  icons,
+  categories,
   onSave,
   showNotification
 }) => {
