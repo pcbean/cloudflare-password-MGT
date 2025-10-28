@@ -1,6 +1,7 @@
 # CloudFlare 部署自己的密码管理器
 
-Cloudflare 部署：
+部署流程：
+
 1、fork 本项目
 
 2、到cloudflare 新建pages，点击git导入，然后选择你fork这个项目的项目名字
