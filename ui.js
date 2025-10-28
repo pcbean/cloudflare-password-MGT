@@ -115,10 +115,16 @@ const Sidebar = ({
                 {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setSelectedItem(item)}
+                    onClick={() => {
+                      setSelectedItem(item);
+                      if (isMobile) {
+                        setSidebarOpen(false);
+                      }
+                    }}
                     className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
                       selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
                     }`}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
                       {item.website[0]?.toUpperCase()}
@@ -138,13 +144,19 @@ const Sidebar = ({
                       <div className="flex items-center justify-between px-3 py-2">
                         <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
                       </div>
-                      {subcategory.items?.map(item => (
+                  {subcategory.items?.map(item => (
                         <button
                           key={item.id}
-                          onClick={() => setSelectedItem(item)}
+                          onClick={() => {
+                            setSelectedItem(item);
+                            if (isMobile) {
+                              setSidebarOpen(false);
+                            }
+                          }}
                           className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
                             selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
                           }`}
+                          style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
                           <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
                             {item.website[0]?.toUpperCase()}
