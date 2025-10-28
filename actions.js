@@ -21,14 +21,39 @@ const addNewPassword = async (newPasswordData, categories, saveData, showNotific
         accounts: [{ username, password, note: note || '' }]
       };
       
-      // 如果没有选择子分类,直接添加到大类下
-        // 如果没有选择子分类,直接添加到大类的 items 数组
+       // 如果没有选择子分类,添加到"默认"子分类
       if (!subcategoryId) {
-        return {
-          ...cat,
-          items: [...(cat.items || []), newItem],
-          subcategories: cat.subcategories || []
-        };
+        const subcategories = cat.subcategories || [];
+        let defaultSub = subcategories.find(sub => sub.name === '默认');
+        
+        if (!defaultSub) {
+          // 创建"默认"子分类并添加到最前面
+          return {
+            ...cat,
+            subcategories: [
+              {
+                id: `${categoryId}-default`,
+                name: '默认',
+                items: [newItem]
+              },
+              ...subcategories
+            ]
+          };
+        } else {
+          // 添加到已存在的"默认"子分类
+          return {
+            ...cat,
+            subcategories: subcategories.map(sub => {
+              if (sub.name === '默认') {
+                return {
+                  ...sub,
+                  items: [...(sub.items || []), newItem]
+                };
+              }
+              return sub;
+            })
+          };
+        }
       }
       
       // 如果选择了子分类,添加到指定子分类
