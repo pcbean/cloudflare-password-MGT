@@ -181,11 +181,11 @@ const CategoryManagementModal = ({
 }) => {
   const [localIcons, setLocalIcons] = useState([]);
 
-  useEffect(() => {
+   useEffect(() => {
     if (showModal) {
-      setLocalIcons([...icons]);
+      setLocalIcons([]);
     }
-  }, [showModal, icons]);
+  }, [showModal]);
 
   const handleUpload = (e) => {
     const files = Array.from(e.target.files);
