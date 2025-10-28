@@ -251,7 +251,9 @@ const IconSelectorModal = ({
 
           {icons.length === 0 && (
             <div className="text-center py-12 text-gray-400">
-              <span className="text-4xl mb-4 block">🖼️</span>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <Icon name="Image" className="w-8 h-8 text-gray-300" />
+              </div>
               <p>还没有上传图标</p>
               <p className="text-sm mt-2">请先在图标管理中上传图标</p>
             </div>
@@ -368,7 +370,9 @@ const IconManagementModal = ({
 
           {localIcons.length === 0 && (
             <div className="text-center py-12 text-gray-400">
-              <span className="text-4xl mb-4 block">🖼️</span>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <Icon name="Image" className="w-8 h-8 text-gray-300" />
+              </div>
               <p>还没有上传图标</p>
             </div>
           )}
