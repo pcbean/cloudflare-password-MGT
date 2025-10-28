@@ -271,7 +271,7 @@ const PasswordDetail = ({
   if (!selectedItem) return <EmptyState />;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
@@ -371,13 +371,13 @@ const PasswordDetail = ({
                   {account.password && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">密码</label>
-                         <div className="flex items-center gap-1.5 md:gap-2">
+                                            <div className="flex items-center space-x-1 md:space-x-2">
                         <input
-                          type="text"
-                          value={account.username}
-                          readOnly={!editingAccount[`${selectedItem.id}-${index}-username`]}
-                          onChange={(e) => onEditField(selectedItem.id, index, 'username', e.target.value)}
-                          className="flex-1 min-w-0 px-2 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                          type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
+                          value={account.password}
+                          readOnly={!editingAccount[`${selectedItem.id}-${index}-password`]}
+                          onChange={(e) => onEditField(selectedItem.id, index, 'password', e.target.value)}
+                          className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
                         />
                         <button
                           onClick={() => onToggleEdit(selectedItem.id, index, 'password')}
