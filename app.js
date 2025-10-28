@@ -112,6 +112,8 @@ function PasswordManager() {
   const [showIconSelectorModal, setShowIconSelectorModal] = useState(false);
   const [iconSelectorTarget, setIconSelectorTarget] = useState(null);
   const [uploadedIcons, setUploadedIcons] = useState([]);
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState(null);
 
   useEffect(() => {
     const fetchEnvUsers = async () => {
@@ -377,7 +379,7 @@ function PasswordManager() {
     setShowIconSelectorModal(true);
   };
 
-  const handleIconSelect = async (iconData) => {
+   const handleIconSelect = async (iconData) => {
     if (!iconSelectorTarget) return;
     
     const { type, id } = iconSelectorTarget;
@@ -403,6 +405,38 @@ function PasswordManager() {
     setShowIconSelectorModal(false);
     setIconSelectorTarget(null);
     showNotificationFunc('图标已更新');
+  };
+
+  const handleEditItem = async (editedData) => {
+    try {
+      const updatedCategories = categories.map(cat => ({
+        ...cat,
+        subcategories: cat.subcategories.map(sub => ({
+          ...sub,
+          items: sub.items.map(item => {
+            if (item.id === itemToEdit.id) {
+              return {
+                ...item,
+                website: editedData.website,
+                url: editedData.url
+              };
+            }
+            return item;
+          })
+        }))
+      }));
+      
+      await saveData(updatedCategories);
+      const updatedItem = updatedCategories
+        .flatMap(c => c.subcategories.flatMap(s => s.items))
+        .find(i => i.id === itemToEdit.id);
+      setSelectedItem(updatedItem);
+      setShowEditItemModal(false);
+      setItemToEdit(null);
+      showNotificationFunc('项目已更新');
+    } catch (error) {
+      showNotificationFunc('更新失败', 'error');
+    }
   };
 
   if (!isAuthenticated) {
@@ -452,7 +486,7 @@ function PasswordManager() {
         <SecurityProgressBar categories={categories} />
 
         <div className="flex-1 overflow-y-auto p-6">
-          <PasswordDetail 
+                  <PasswordDetail 
             selectedItem={selectedItem}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -462,6 +496,10 @@ function PasswordManager() {
             onToggleEdit={handleToggleEdit}
             onEditField={handleEditField}
             onAddAccount={handleAddAccount}
+            onEdit={() => {
+              setItemToEdit(selectedItem);
+              setShowEditItemModal(true);
+            }}
             onSelectIcon={() => handleSelectIcon('item', selectedItem?.id)}
           />
         </div>
@@ -491,11 +529,18 @@ function PasswordManager() {
         showNotification={showNotificationFunc}
       />
 
-           <IconSelectorModal 
+                      <IconSelectorModal 
         showModal={showIconSelectorModal}
         setShowModal={setShowIconSelectorModal}
         icons={uploadedIcons}
         onSelect={handleIconSelect}
+      />
+
+      <EditItemModal 
+        showModal={showEditItemModal}
+        setShowModal={setShowEditItemModal}
+        itemToEdit={itemToEdit}
+        onSave={handleEditItem}
       />
     </div>
   );

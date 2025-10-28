@@ -657,7 +657,95 @@ const handleBatchDelete = async () => {
           >
             保存
           </button>
+             </div>
+      </div>
+    </div>
+  );
+};
+
+// 编辑项目模态框
+const EditItemModal = ({ 
+  showModal, 
+  setShowModal, 
+  itemToEdit,
+  onSave
+}) => {
+  const [formData, setFormData] = useState({
+    website: '',
+    url: ''
+  });
+
+  useEffect(() => {
+    if (itemToEdit) {
+      setFormData({
+        website: itemToEdit.website || '',
+        url: itemToEdit.url || ''
+      });
+    }
+  }, [itemToEdit]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.website) {
+      alert('请填写网站名称');
+      return;
+    }
+    onSave(formData);
+  };
+
+  if (!showModal) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <h3 className="text-2xl font-bold text-gray-800">编辑项目</h3>
+          <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+            <Icon name="X" className="w-6 h-6" />
+          </button>
         </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">网站名称 *</label>
+            <input
+              type="text"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              placeholder="例如: Google"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">网址</label>
+            <input
+              type="url"
+              value={formData.url}
+              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              placeholder="https://example.com"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg hover:shadow-lg transition"
+            >
+              保存
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

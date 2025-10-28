@@ -288,7 +288,7 @@ const PasswordDetail = ({
                 <Icon name="Plus" className="w-5 h-5" />
               </button>
               <button
-                onClick={onAddAccount}
+                onClick={() => onEdit && onEdit()}
                 className="p-2 hover:bg-yellow-100 text-yellow-600 rounded-lg transition"
                 title="修改密码"
               >
