@@ -169,7 +169,6 @@ const Sidebar = ({
           <span>分类管理</span>
         </button>
         <button
-                 <button
           onClick={onIconManagement}
           className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-xl hover:shadow-lg transition transform hover:scale-[1.02] font-semibold text-sm"
         >
@@ -394,4 +393,5 @@ const PasswordDetail = ({
       </div>
     </div>
   );
+
 };
