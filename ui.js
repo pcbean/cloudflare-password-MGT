@@ -94,7 +94,7 @@ const Sidebar = ({
                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
                 title="更换图标"
               >
-                <span className="text-sm">🖼️</span>
+                <Icon name="Image" className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onAddPassword(category.id)}
@@ -169,10 +169,11 @@ const Sidebar = ({
           <span>分类管理</span>
         </button>
         <button
+                 <button
           onClick={onIconManagement}
           className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-xl hover:shadow-lg transition transform hover:scale-[1.02] font-semibold text-sm"
         >
-          <span className="text-lg">🖼️</span>
+          <Icon name="Image" className="w-5 h-5" />
           <span>图标管理</span>
         </button>
         <button
@@ -288,7 +289,7 @@ const PasswordDetail = ({
                 className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition"
                 title="更换图标"
               >
-                <span className="text-lg">🖼️</span>
+                <Icon name="Image" className="w-5 h-5" />
               </button>
               <button
                 onClick={onDelete}
