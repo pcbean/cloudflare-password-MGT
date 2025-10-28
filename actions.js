@@ -17,10 +17,10 @@ const updatedCategories = categories.map(cat => {
     
     // 如果没有选择子分类,直接添加到大类下
     if (!subcategoryId) {
-      // 确保 subcategories 数组存在
-      const subcategories = cat.subcategories || [];
-      // 查找或创建与大类同名的子分类
-      let mainSub = subcategories.find(sub => sub.name === cat.name);
+  // 确保 subcategories 数组存在,如果不存在则初始化为空数组
+  const subcategories = cat.subcategories || [];
+  // 查找是否已有与大类同名的子分类
+  let mainSub = subcategories.find(sub => sub.name === cat.name);
       
       if (!mainSub) {
         // 创建与大类同名的子分类并添加到最前面
