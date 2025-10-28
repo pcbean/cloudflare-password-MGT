@@ -116,35 +116,33 @@ const AddPasswordModal = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">用户名 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">用户名</label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder="用户名或邮箱"
+              placeholder="用户名或邮箱（可选）"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">密码 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">密码</label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="密码"
+              placeholder="密码（可选）"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              required
             />
           </div>
 
-          <div>
+           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">备注</label>
             <textarea
               value={formData.note}
               onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-              placeholder="可选备注信息"
+              placeholder="可以在这里记录默认密码或其他信息"
               rows="3"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />

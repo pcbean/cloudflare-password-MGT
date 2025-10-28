@@ -13,12 +13,16 @@ const addNewPassword = async (newPasswordData, categories, saveData, showNotific
 
   const updatedCategories = categories.map(cat => {
     if (cat.id === categoryId) {
-      const newItem = {
+       const newItem = {
         id: Date.now().toString(),
         website,
         url: url || `https://${website}`,
         favicon: getFaviconUrl(url || `https://${website}`),
-        accounts: [{ username, password, note: note || '' }]
+        accounts: [{ 
+          username: username || '', 
+          password: password || '', 
+          note: note || '' 
+        }]
       };
       
        // 如果没有选择子分类,添加到"默认"子分类
