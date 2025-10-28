@@ -234,6 +234,8 @@ const handleSubmit = () => {
     password,
     note
   });
+  // 重置表单...
+};
 
   // 重置表单
   setSelectedCategory('');
