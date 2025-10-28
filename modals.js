@@ -51,8 +51,12 @@ const AddPasswordModal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-800">添加新密码</h3>
+         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <h3 className="text-2xl font-bold text-gray-800">
+            {selectedCategoryId && categories.flatMap(c => c.subcategories.flatMap(s => s.items)).find(i => i.id === selectedCategoryId)
+              ? `添加账户到 ${categories.flatMap(c => c.subcategories.flatMap(s => s.items)).find(i => i.id === selectedCategoryId)?.website}`
+              : '添加新密码'}
+          </h3>
           <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
             <Icon name="X" className="w-6 h-6" />
           </button>

@@ -287,40 +287,10 @@ function PasswordManager() {
     }
   };
 
-  const handleAddAccount = async () => {
+   const handleAddAccount = async () => {
     if (!selectedItem) return;
-    
-    const newAccountIndex = selectedItem.accounts.length;
-    const updatedCategories = categories.map(cat => ({
-      ...cat,
-      subcategories: cat.subcategories.map(sub => ({
-        ...sub,
-        items: sub.items.map(item => {
-          if (item.id === selectedItem.id) {
-            return {
-              ...item,
-              accounts: [...item.accounts, { username: '', password: '', note: '' }]
-            };
-          }
-          return item;
-        })
-      }))
-    }));
-    
-    setCategories(updatedCategories);
-    
-    const updatedItem = updatedCategories
-      .flatMap(c => c.subcategories.flatMap(s => s.items))
-      .find(i => i.id === selectedItem.id);
-    setSelectedItem(updatedItem);
-    
-    setEditingAccount(prev => ({
-      ...prev,
-      [`${selectedItem.id}-${newAccountIndex}-username`]: true,
-      [`${selectedItem.id}-${newAccountIndex}-password`]: true
-    }));
-    
-    showNotificationFunc('账户已添加,请输入信息');
+    setSelectedCategoryForAdd(selectedItem.id);
+    setShowAddPasswordModal(true);
   };
 
   const handleDeleteItem = async () => {
@@ -343,19 +313,54 @@ function PasswordManager() {
       showNotificationFunc('删除失败', 'error');
     }
   };
-    const handleAddPassword = async (newPasswordData) => {
+   const handleAddPassword = async (newPasswordData) => {
     try {
-      const updatedCategories = await addNewPassword(
-        newPasswordData,
-        categories,
-        saveData,
-        showNotificationFunc
-      );
-      if (updatedCategories) {
-        await loadData();
-        setShowAddPasswordModal(false);
-        setSelectedCategoryForAdd(null);
+      // 检查是否是给现有项目添加账户
+      if (selectedItem && selectedCategoryForAdd === selectedItem.id) {
+        // 添加账户到当前项目
+        const updatedCategories = categories.map(cat => ({
+          ...cat,
+          subcategories: cat.subcategories.map(sub => ({
+            ...sub,
+            items: sub.items.map(item => {
+              if (item.id === selectedItem.id) {
+                return {
+                  ...item,
+                  accounts: [...item.accounts, {
+                    username: newPasswordData.username || '',
+                    password: newPasswordData.password || '',
+                    note: newPasswordData.note || ''
+                  }]
+                };
+              }
+              return item;
+            })
+          }))
+        }));
+        
+        await saveData(updatedCategories);
+        
+        const updatedItem = updatedCategories
+          .flatMap(c => c.subcategories.flatMap(s => s.items))
+          .find(i => i.id === selectedItem.id);
+        setSelectedItem(updatedItem);
+        
+        showNotificationFunc('账户已添加');
+      } else {
+        // 添加新密码项目
+        const updatedCategories = await addNewPassword(
+          newPasswordData,
+          categories,
+          saveData,
+          showNotificationFunc
+        );
+        if (updatedCategories) {
+          await loadData();
+        }
       }
+      
+      setShowAddPasswordModal(false);
+      setSelectedCategoryForAdd(null);
     } catch (error) {
       showNotificationFunc('添加失败', 'error');
     }
