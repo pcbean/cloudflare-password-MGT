@@ -19,14 +19,36 @@ const AddPasswordModal = ({
     note: ''
   });
 
+  // 检查是否是给现有项目添加账户
+  const isAddingAccountMode = selectedCategoryId && categories
+    .flatMap(c => c.subcategories.flatMap(s => s.items))
+    .find(i => i.id === selectedCategoryId);
+
   useEffect(() => {
     if (selectedCategoryId) {
       setFormData(prev => ({ ...prev, categoryId: selectedCategoryId }));
     }
   }, [selectedCategoryId]);
 
-   const handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // 如果是添加账户模式,只需要验证用户名或密码
+    if (isAddingAccountMode) {
+      onAdd(formData);
+      setFormData({
+        categoryId: '',
+        subcategoryId: '',
+        website: '',
+        url: '',
+        username: '',
+        password: '',
+        note: ''
+      });
+      return;
+    }
+    
+    // 否则是添加新密码项目,需要验证分类和网站
     if (!formData.categoryId || !formData.website) {
       alert('请填写分类和网站名称');
       return;
@@ -51,10 +73,10 @@ const AddPasswordModal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         
-         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
           <h3 className="text-2xl font-bold text-gray-800">
-            {selectedCategoryId && categories.flatMap(c => c.subcategories.flatMap(s => s.items)).find(i => i.id === selectedCategoryId)
-              ? `添加账户到 ${categories.flatMap(c => c.subcategories.flatMap(s => s.items)).find(i => i.id === selectedCategoryId)?.website}`
+            {isAddingAccountMode
+              ? `添加账户到 ${isAddingAccountMode.website}`
               : '添加新密码'}
           </h3>
           <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -63,61 +85,66 @@ const AddPasswordModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">分类 *</label>
-            <select
-              value={formData.categoryId}
-              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value, subcategoryId: '' })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              required
-            >
-              <option value="">选择分类</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">子分类</label>
-              <select
-                value={formData.subcategoryId}
-                onChange={(e) => setFormData({ ...formData, subcategoryId: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              >
-                <option value="">默认</option>
-                {selectedCategory.subcategories
-                  .filter(sub => sub.name !== '默认')
-                  .map(sub => (
-                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+          {/* 只有在非添加账户模式下才显示分类选择器 */}
+          {!isAddingAccountMode && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">分类 *</label>
+                <select
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value, subcategoryId: '' })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  required
+                >
+                  <option value="">选择分类</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
-              </select>
-            </div>
+                </select>
+              </div>
+
+              {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">子分类</label>
+                  <select
+                    value={formData.subcategoryId}
+                    onChange={(e) => setFormData({ ...formData, subcategoryId: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  >
+                    <option value="">默认</option>
+                    {selectedCategory.subcategories
+                      .filter(sub => sub.name !== '默认')
+                      .map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">网站名称 *</label>
+                <input
+                  type="text"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  placeholder="例如: Google"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">网址</label>
+                <input
+                  type="url"
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  placeholder="https://example.com"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                />
+              </div>
+            </>
           )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">网站名称 *</label>
-            <input
-              type="text"
-              value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              placeholder="例如: Google"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">网址</label>
-            <input
-              type="url"
-              value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              placeholder="https://example.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            />
-          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">用户名</label>
@@ -125,7 +152,7 @@ const AddPasswordModal = ({
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder="用户名或邮箱（可选）"
+              placeholder="用户名或邮箱(可选)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />
           </div>
@@ -136,12 +163,12 @@ const AddPasswordModal = ({
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="密码（可选）"
+              placeholder="密码(可选)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />
           </div>
 
-           <div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">备注</label>
             <textarea
               value={formData.note}
