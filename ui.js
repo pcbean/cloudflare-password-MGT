@@ -161,7 +161,7 @@ const Sidebar = ({
       </div>
 
       <div className="p-4 border-t border-gray-100 space-y-2">
-        <button
+              <button
           onClick={() => setShowCategoryModal(true)}
           className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl hover:shadow-lg transition transform hover:scale-[1.02] font-semibold text-sm"
         >
@@ -393,5 +393,4 @@ const PasswordDetail = ({
       </div>
     </div>
   );
-
 };
