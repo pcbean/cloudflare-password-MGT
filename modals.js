@@ -333,19 +333,26 @@ useEffect(() => {
     });
   };
 
-    const handleDelete = (iconId) => {
-    if (window.confirm('确定要删除这个图标吗?')) {
-      setLocalIcons(prev => prev.filter(icon => icon.id !== iconId));
-    }
-  };
-const handleBatchDelete = () => {
+const handleDelete = async (iconId) => {
+  if (window.confirm('确定要删除这个图标吗?')) {
+    const updatedIcons = localIcons.filter(icon => icon.id !== iconId);
+    setLocalIcons(updatedIcons);
+    await onSave(updatedIcons);
+    showNotification('图标已删除');
+  }
+};
+
+const handleBatchDelete = async () => {
   if (selectedIcons.length === 0) {
     alert('请先选择要删除的图标');
     return;
   }
   if (window.confirm(`确定要删除选中的 ${selectedIcons.length} 个图标吗?`)) {
-    setLocalIcons(prev => prev.filter(icon => !selectedIcons.includes(icon.id)));
+    const updatedIcons = localIcons.filter(icon => !selectedIcons.includes(icon.id));
+    setLocalIcons(updatedIcons);
     setSelectedIcons([]);
+    await onSave(updatedIcons);
+    showNotification('图标已删除');
   }
 };
   const handleDownload = (icon) => {
