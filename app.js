@@ -108,6 +108,10 @@ function PasswordManager() {
   const [isMobile, setIsMobile] = useState(false);
   const [notification, setNotification] = useState(null);
   const [editingAccount, setEditingAccount] = useState({});
+  const [showIconManagementModal, setShowIconManagementModal] = useState(false);
+  const [showIconSelectorModal, setShowIconSelectorModal] = useState(false);
+  const [iconSelectorTarget, setIconSelectorTarget] = useState(null);
+  const [uploadedIcons, setUploadedIcons] = useState([]);
 
   useEffect(() => {
     const fetchEnvUsers = async () => {
@@ -147,6 +151,22 @@ function PasswordManager() {
     }
   }, [isAuthenticated, currentUser]);
 
+  useEffect(() => {
+    const loadIcons = async () => {
+      try {
+        const result = await storage.get(`icons_${currentUser}`);
+        if (result && result.value) {
+          setUploadedIcons(JSON.parse(result.value));
+        }
+      } catch (error) {
+        console.error('加载图标失败:', error);
+      }
+    };
+    if (currentUser) {
+      loadIcons();
+    }
+  }, [currentUser]);
+
   const showNotificationFunc = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
@@ -176,6 +196,15 @@ function PasswordManager() {
       console.error('保存失败:', error);
       showNotificationFunc('保存失败', 'error');
       throw error;
+    }
+  };
+
+  const saveIcons = async (icons) => {
+    try {
+      await storage.set(`icons_${currentUser}`, JSON.stringify(icons));
+      setUploadedIcons(icons);
+    } catch (error) {
+      showNotificationFunc('保存图标失败', 'error');
     }
   };
 
@@ -283,14 +312,13 @@ function PasswordManager() {
       .find(i => i.id === selectedItem.id);
     setSelectedItem(updatedItem);
     
-    // 自动进入编辑状态
     setEditingAccount(prev => ({
       ...prev,
       [`${selectedItem.id}-${newAccountIndex}-username`]: true,
       [`${selectedItem.id}-${newAccountIndex}-password`]: true
     }));
     
-    showNotificationFunc('账户已添加，请输入信息');
+    showNotificationFunc('账户已添加,请输入信息');
   };
 
   const handleDeleteItem = async () => {
@@ -323,7 +351,7 @@ function PasswordManager() {
         showNotificationFunc
       );
       if (updatedCategories) {
-        await loadData(); // 重新加载数据以确保显示最新
+        await loadData();
         setShowAddPasswordModal(false);
         setSelectedCategoryForAdd(null);
       }
@@ -338,6 +366,43 @@ function PasswordManager() {
 
   const handleCopy = (text, type) => {
     copyToClipboard(text, type, showNotificationFunc);
+  };
+
+  const handleIconManagement = () => {
+    setShowIconManagementModal(true);
+  };
+
+  const handleSelectIcon = (type, id) => {
+    setIconSelectorTarget({ type, id });
+    setShowIconSelectorModal(true);
+  };
+
+  const handleIconSelect = async (iconData) => {
+    if (!iconSelectorTarget) return;
+    
+    const { type, id } = iconSelectorTarget;
+    
+    if (type === 'category') {
+      const updatedCategories = categories.map(cat => 
+        cat.id === id ? { ...cat, icon: iconData } : cat
+      );
+      await saveData(updatedCategories);
+    } else if (type === 'item') {
+      const updatedCategories = categories.map(cat => ({
+        ...cat,
+        subcategories: cat.subcategories.map(sub => ({
+          ...sub,
+          items: sub.items.map(item => 
+            item.id === id ? { ...item, favicon: iconData } : item
+          )
+        }))
+      }));
+      await saveData(updatedCategories);
+    }
+    
+    setShowIconSelectorModal(false);
+    setIconSelectorTarget(null);
+    showNotificationFunc('图标已更新');
   };
 
   if (!isAuthenticated) {
@@ -371,6 +436,8 @@ function PasswordManager() {
           setSelectedCategoryForAdd(categoryId);
           setShowAddPasswordModal(true);
         }}
+        onIconManagement={handleIconManagement}
+        onSelectIcon={handleSelectIcon}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -395,6 +462,7 @@ function PasswordManager() {
             onToggleEdit={handleToggleEdit}
             onEditField={handleEditField}
             onAddAccount={handleAddAccount}
+            onSelectIcon={() => handleSelectIcon('item', selectedItem?.id)}
           />
         </div>
       </div>
@@ -413,6 +481,21 @@ function PasswordManager() {
         categories={categories}
         selectedCategoryId={selectedCategoryForAdd}
         onAdd={handleAddPassword}
+      />
+
+      <IconManagementModal 
+        showModal={showIconManagementModal}
+        setShowModal={setShowIconManagementModal}
+        icons={uploadedIcons}
+        onSave={saveIcons}
+        showNotification={showNotificationFunc}
+      />
+
+      <IconSelectorModal 
+        showModal={showIconSelectorModal}
+        setShowModal={setShowIconSelectorModal}
+        icons={uploadedIcons}
+        onSelect={handleIconSelect}
       />
     </div>
   );

@@ -30,7 +30,9 @@ const Sidebar = ({
   setSelectedItem,
   setShowCategoryModal,
   onExport,
-  onAddPassword
+  onAddPassword,
+  onIconManagement,
+  onSelectIcon
 }) => {
   if (!sidebarOpen) return null;
 
@@ -88,6 +90,13 @@ const Sidebar = ({
                 <Icon name={expandedCategories[category.id] ? 'ChevronDown' : 'ChevronRight'} className="w-4 h-4 text-gray-400" />
               </button>
               <button
+                onClick={() => onSelectIcon('category', category.id)}
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                title="更换图标"
+              >
+                <span className="text-sm">🖼️</span>
+              </button>
+              <button
                 onClick={() => onAddPassword(category.id)}
                 className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
                 title="新增密码"
@@ -96,57 +105,57 @@ const Sidebar = ({
               </button>
             </div>
             
-{expandedCategories[category.id] && (
-  <>
-    {/* 先渲染“默认”子分类中的所有密码项，直接显示在大类展开区域 */}
-    {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
-      <button
-        key={item.id}
-        onClick={() => setSelectedItem(item)}
-        className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
-          selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-        }`}
-      >
-        <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-          {item.website[0]?.toUpperCase()}
-        </div>
-        <div className="flex-1 text-left">
-          <div className="text-sm font-semibold text-gray-800">{item.website}</div>
-          <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
-        </div>
-      </button>
-    ))}
+            {expandedCategories[category.id] && (
+              <>
+                {/* 先渲染"默认"子分类中的所有密码项,直接显示在大类展开区域 */}
+                {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedItem(item)}
+                    className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
+                      selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+                      {item.website[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+                      <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+                    </div>
+                  </button>
+                ))}
 
-    {/* 渲染其他非“默认”子分类 */}
-    {category.subcategories
-      ?.filter(sub => sub.name !== '默认')
-      .map(subcategory => (
-        <div key={subcategory.id} className="ml-6 space-y-1">
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
-          </div>
-          {subcategory.items?.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setSelectedItem(item)}
-              className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
-                selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-              }`}
-            >
-              <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                {item.website[0]?.toUpperCase()}
-              </div>
-              <div className="flex-1 text-left">
-                <div className="text-sm font-semibold text-gray-800">{item.website}</div>
-                <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      ))
-    }
-  </>
-)}
+                {/* 渲染其他非"默认"子分类 */}
+                {category.subcategories
+                  ?.filter(sub => sub.name !== '默认')
+                  .map(subcategory => (
+                    <div key={subcategory.id} className="ml-6 space-y-1">
+                      <div className="flex items-center justify-between px-3 py-2">
+                        <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
+                      </div>
+                      {subcategory.items?.map(item => (
+                        <button
+                          key={item.id}
+                          onClick={() => setSelectedItem(item)}
+                          className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
+                            selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+                            {item.website[0]?.toUpperCase()}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+                            <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ))
+                }
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -158,6 +167,13 @@ const Sidebar = ({
         >
           <Icon name="Plus" />
           <span>分类管理</span>
+        </button>
+        <button
+          onClick={onIconManagement}
+          className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-xl hover:shadow-lg transition transform hover:scale-[1.02] font-semibold text-sm"
+        >
+          <span className="text-lg">🖼️</span>
+          <span>图标管理</span>
         </button>
         <button
           onClick={onExport}
@@ -221,6 +237,7 @@ const EmptyState = () => {
     </div>
   );
 };
+
 // 密码详情组件
 const PasswordDetail = ({ 
   selectedItem, 
@@ -231,7 +248,8 @@ const PasswordDetail = ({
   editingAccount,
   onToggleEdit,
   onEditField,
-  onAddAccount
+  onAddAccount,
+  onSelectIcon
 }) => {
   if (!selectedItem) return <EmptyState />;
 
@@ -257,13 +275,20 @@ const PasswordDetail = ({
                 </a>
               </div>
             </div>
-            <div className="flex flex-col space-y-2">
+            <div className="flex space-x-2">
               <button
                 onClick={onAddAccount}
                 className="p-2 hover:bg-green-100 text-green-600 rounded-lg transition"
                 title="添加账户"
               >
                 <Icon name="Plus" className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onSelectIcon}
+                className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition"
+                title="更换图标"
+              >
+                <span className="text-lg">🖼️</span>
               </button>
               <button
                 onClick={onDelete}
@@ -364,183 +389,6 @@ const PasswordDetail = ({
               );
             })}
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// 新增密码模态框
-const AddPasswordModal = ({ 
-  showModal, 
-  setShowModal, 
-  categories,
-  selectedCategoryId,
-  onAdd
-}) => {
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [website, setWebsite] = useState('');
-  const [url, setUrl] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [note, setNote] = useState('');
-
-  useEffect(() => {
-    if (showModal && selectedCategoryId) {
-      setSelectedCategory(selectedCategoryId);
-    }
-  }, [showModal, selectedCategoryId]);
-
-  const handleSubmit = () => {
-    onAdd({
-      categoryId: selectedCategory,
-      subcategoryId: selectedSubcategory,
-      website,
-      url: url || `https://${website}`,
-      username,
-      password,
-      note
-    });
-
-    onAdd({
-      categoryId: selectedCategory,
-      subcategoryId: selectedSubcategory,
-      website,
-      url: url || `https://${website}`,
-      username,
-      password,
-      note
-    });
-
-    // 重置表单
-    setSelectedCategory('');
-    setSelectedSubcategory('');
-    setWebsite('');
-    setUrl('');
-    setUsername('');
-    setPassword('');
-    setNote('');
-  };
-
-  if (!showModal) return null;
-
-  const category = categories.find(c => c.id === selectedCategory);
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-800">新增密码</h3>
-          <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
-            <Icon name="X" className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">选择分类 *</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setSelectedSubcategory('');
-              }}
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-            >
-              <option value="">请选择分类</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {selectedCategory && category?.subcategories?.length > 0 && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">选择子分类 (选填)</label>
-              <select
-                value={selectedSubcategory}
-                onChange={(e) => setSelectedSubcategory(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-              >
-                <option value="">大类(无子分类)</option>
-                {category.subcategories.map(sub => (
-                  <option key={sub.id} value={sub.id}>{sub.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">网站名称 *</label>
-            <input
-              type="text"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-              placeholder="例如: Docker Hub"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">网址 (选填)</label>
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="例如: https://hub.docker.com"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">用户名 *</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="输入用户名"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">密码 *</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="输入密码"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">备注 (选填)</label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="添加备注信息"
-              rows="3"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
-          <button
-            onClick={() => setShowModal(false)}
-            className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-          >
-            取消
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg hover:shadow-lg transition"
-          >
-            添加密码
-          </button>
         </div>
       </div>
     </div>
