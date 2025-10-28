@@ -25,7 +25,7 @@ const AddPasswordModal = ({
     }
   }, [selectedCategoryId]);
 
-  const handleSubmit = (e) => {
+   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.categoryId || !formData.website) {
       alert('请填写分类和网站名称');

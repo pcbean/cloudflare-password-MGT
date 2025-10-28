@@ -288,6 +288,13 @@ const PasswordDetail = ({
                 <Icon name="Plus" className="w-5 h-5" />
               </button>
               <button
+                onClick={() => window.editPasswordItem && window.editPasswordItem(selectedItem)}
+                className="p-2 hover:bg-yellow-100 text-yellow-600 rounded-lg transition"
+                title="修改密码"
+              >
+                <Icon name="Edit" className="w-5 h-5" />
+              </button>
+              <button
                 onClick={onSelectIcon}
                 className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition"
                 title="更换图标"
@@ -320,71 +327,75 @@ const PasswordDetail = ({
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600">用户名</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={account.username}
-                        readOnly={!editingAccount[`${selectedItem.id}-${index}-username`]}
-                        onChange={(e) => onEditField(selectedItem.id, index, 'username', e.target.value)}
-                        className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
-                      />
-                      <button
-                        onClick={() => onToggleEdit(selectedItem.id, index, 'username')}
-                        className="p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm"
-                        title={editingAccount[`${selectedItem.id}-${index}-username`] ? '保存' : '编辑'}
-                      >
-                        <Icon name={editingAccount[`${selectedItem.id}-${index}-username`] ? 'Check' : 'Edit'} className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => onCopy(account.username, '用户名')}
-                        className="p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm"
-                      >
-                        <Icon name="Copy" className="w-5 h-5" />
-                      </button>
+                  {account.username && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-gray-600">用户名</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={account.username}
+                          readOnly={!editingAccount[`${selectedItem.id}-${index}-username`]}
+                          onChange={(e) => onEditField(selectedItem.id, index, 'username', e.target.value)}
+                          className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                        />
+                        <button
+                          onClick={() => onToggleEdit(selectedItem.id, index, 'username')}
+                          className="p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm"
+                          title={editingAccount[`${selectedItem.id}-${index}-username`] ? '保存' : '编辑'}
+                        >
+                          <Icon name={editingAccount[`${selectedItem.id}-${index}-username`] ? 'Check' : 'Edit'} className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => onCopy(account.username, '用户名')}
+                          className="p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm"
+                        >
+                          <Icon name="Copy" className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600">密码</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
-                        value={account.password}
-                        readOnly={!editingAccount[`${selectedItem.id}-${index}-password`]}
-                        onChange={(e) => onEditField(selectedItem.id, index, 'password', e.target.value)}
-                        className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
-                      />
-                      <button
-                        onClick={() => onToggleEdit(selectedItem.id, index, 'password')}
-                        className="p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm"
-                        title={editingAccount[`${selectedItem.id}-${index}-password`] ? '保存' : '编辑'}
-                      >
-                        <Icon name={editingAccount[`${selectedItem.id}-${index}-password`] ? 'Check' : 'Edit'} className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setShowPassword(prev => ({
-                          ...prev,
-                          [`${selectedItem.id}-${index}`]: !prev[`${selectedItem.id}-${index}`]
-                        }))}
-                        className="p-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-                      >
-                        <Icon name={showPassword[`${selectedItem.id}-${index}`] ? 'EyeOff' : 'Eye'} className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => onCopy(account.password, '密码')}
-                        className="p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm"
-                      >
-                        <Icon name="Copy" className="w-5 h-5" />
-                      </button>
+                  {account.password && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-gray-600">密码</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
+                          value={account.password}
+                          readOnly={!editingAccount[`${selectedItem.id}-${index}-password`]}
+                          onChange={(e) => onEditField(selectedItem.id, index, 'password', e.target.value)}
+                          className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                        />
+                        <button
+                          onClick={() => onToggleEdit(selectedItem.id, index, 'password')}
+                          className="p-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-sm"
+                          title={editingAccount[`${selectedItem.id}-${index}-password`] ? '保存' : '编辑'}
+                        >
+                          <Icon name={editingAccount[`${selectedItem.id}-${index}-password`] ? 'Check' : 'Edit'} className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => setShowPassword(prev => ({
+                            ...prev,
+                            [`${selectedItem.id}-${index}`]: !prev[`${selectedItem.id}-${index}`]
+                          }))}
+                          className="p-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                        >
+                          <Icon name={showPassword[`${selectedItem.id}-${index}`] ? 'EyeOff' : 'Eye'} className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => onCopy(account.password, '密码')}
+                          className="p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm"
+                        >
+                          <Icon name="Copy" className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {account.note && (
+                                     {account.note && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">备注</label>
-                      <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200 whitespace-pre-wrap">
                         {account.note}
                       </p>
                     </div>
