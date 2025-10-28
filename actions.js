@@ -22,40 +22,13 @@ const addNewPassword = async (newPasswordData, categories, saveData, showNotific
       };
       
       // 如果没有选择子分类,直接添加到大类下
+        // 如果没有选择子分类,直接添加到大类的 items 数组
       if (!subcategoryId) {
-        // 确保 subcategories 数组存在,如果不存在则初始化为空数组
-        const subcategories = cat.subcategories || [];
-        // 查找是否已有与大类同名的子分类
-        let mainSub = subcategories.find(sub => sub.name === cat.name);
-        
-        if (!mainSub) {
-          // 创建与大类同名的子分类并添加到最前面
-          return {
-            ...cat,
-            subcategories: [
-              {
-                id: `${categoryId}-main`,
-                name: cat.name,
-                items: [newItem]
-              },
-              ...subcategories
-            ]
-          };
-        } else {
-          // 添加到已存在的大类子分类
-          return {
-            ...cat,
-            subcategories: subcategories.map(sub => {
-              if (sub.name === cat.name) {
-                return {
-                  ...sub,
-                  items: [...(sub.items || []), newItem]
-                };
-              }
-              return sub;
-            })
-          };
-        }
+        return {
+          ...cat,
+          items: [...(cat.items || []), newItem],
+          subcategories: cat.subcategories || []
+        };
       }
       
       // 如果选择了子分类,添加到指定子分类
