@@ -491,7 +491,7 @@ function PasswordManager() {
         showNotification={showNotificationFunc}
       />
 
-      <IconSelectorModal 
+           <IconSelectorModal 
         showModal={showIconSelectorModal}
         setShowModal={setShowIconSelectorModal}
         icons={uploadedIcons}

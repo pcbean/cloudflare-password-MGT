@@ -222,6 +222,12 @@ const IconSelectorModal = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
+  useEffect(() => {
+    if (!showModal) {
+      setSearchTerm('');
+    }
+  }, [showModal]);
+  
   if (!showModal) return null;
 
   const filteredIcons = icons.filter(icon => 
