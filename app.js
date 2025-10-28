@@ -407,30 +407,81 @@ function PasswordManager() {
     showNotificationFunc('图标已更新');
   };
 
-  const handleEditItem = async (editedData) => {
+    const handleEditItem = async (editedData) => {
     try {
-      const updatedCategories = categories.map(cat => ({
+      // 从原分类中删除项目
+      let updatedCategories = categories.map(cat => ({
         ...cat,
         subcategories: cat.subcategories.map(sub => ({
           ...sub,
-          items: sub.items.map(item => {
-            if (item.id === itemToEdit.id) {
+          items: sub.items.filter(item => item.id !== itemToEdit.id)
+        })).filter(sub => sub.items.length > 0)
+      })).filter(cat => cat.subcategories.length > 0);
+
+      // 在新分类中添加项目
+      const updatedItem = {
+        ...itemToEdit,
+        website: editedData.website,
+        url: editedData.url,
+        accounts: editedData.accounts
+      };
+
+      updatedCategories = updatedCategories.map(cat => {
+        if (cat.id === editedData.categoryId) {
+          // 如果没有选择子分类,添加到"默认"子分类
+          if (!editedData.subcategoryId) {
+            let defaultSub = cat.subcategories.find(sub => sub.name === '默认');
+            
+            if (!defaultSub) {
               return {
-                ...item,
-                website: editedData.website,
-                url: editedData.url
+                ...cat,
+                subcategories: [
+                  {
+                    id: `${cat.id}-default`,
+                    name: '默认',
+                    items: [updatedItem]
+                  },
+                  ...cat.subcategories
+                ]
+              };
+            } else {
+              return {
+                ...cat,
+                subcategories: cat.subcategories.map(sub => {
+                  if (sub.name === '默认') {
+                    return {
+                      ...sub,
+                      items: [...sub.items, updatedItem]
+                    };
+                  }
+                  return sub;
+                })
               };
             }
-            return item;
-          })
-        }))
-      }));
-      
+          }
+          
+          // 如果选择了子分类,添加到指定子分类
+          return {
+            ...cat,
+            subcategories: cat.subcategories.map(sub => {
+              if (sub.id === editedData.subcategoryId) {
+                return {
+                  ...sub,
+                  items: [...sub.items, updatedItem]
+                };
+              }
+              return sub;
+            })
+          };
+        }
+        return cat;
+      });
+
       await saveData(updatedCategories);
-      const updatedItem = updatedCategories
+      const newUpdatedItem = updatedCategories
         .flatMap(c => c.subcategories.flatMap(s => s.items))
         .find(i => i.id === itemToEdit.id);
-      setSelectedItem(updatedItem);
+      setSelectedItem(newUpdatedItem);
       setShowEditItemModal(false);
       setItemToEdit(null);
       showNotificationFunc('项目已更新');
@@ -540,6 +591,7 @@ function PasswordManager() {
         showModal={showEditItemModal}
         setShowModal={setShowEditItemModal}
         itemToEdit={itemToEdit}
+        categories={categories}
         onSave={handleEditItem}
       />
     </div>

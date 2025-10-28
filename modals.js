@@ -668,21 +668,65 @@ const EditItemModal = ({
   showModal, 
   setShowModal, 
   itemToEdit,
+  categories,
   onSave
 }) => {
   const [formData, setFormData] = useState({
+    categoryId: '',
+    subcategoryId: '',
     website: '',
-    url: ''
+    url: '',
+    accounts: []
   });
 
   useEffect(() => {
     if (itemToEdit) {
+      // 查找当前项目所在的分类和子分类
+      let foundCategoryId = '';
+      let foundSubcategoryId = '';
+      
+      categories.forEach(cat => {
+        cat.subcategories?.forEach(sub => {
+          const found = sub.items?.find(item => item.id === itemToEdit.id);
+          if (found) {
+            foundCategoryId = cat.id;
+            foundSubcategoryId = sub.id;
+          }
+        });
+      });
+
       setFormData({
+        categoryId: foundCategoryId,
+        subcategoryId: foundSubcategoryId,
         website: itemToEdit.website || '',
-        url: itemToEdit.url || ''
+        url: itemToEdit.url || '',
+        accounts: itemToEdit.accounts || []
       });
     }
-  }, [itemToEdit]);
+  }, [itemToEdit, categories]);
+
+  const handleAccountChange = (index, field, value) => {
+    const updatedAccounts = formData.accounts.map((acc, idx) => 
+      idx === index ? { ...acc, [field]: value } : acc
+    );
+    setFormData({ ...formData, accounts: updatedAccounts });
+  };
+
+  const handleAddAccount = () => {
+    setFormData({
+      ...formData,
+      accounts: [...formData.accounts, { username: '', password: '', note: '' }]
+    });
+  };
+
+  const handleRemoveAccount = (index) => {
+    if (formData.accounts.length <= 1) {
+      alert('至少需要保留一个账户');
+      return;
+    }
+    const updatedAccounts = formData.accounts.filter((_, idx) => idx !== index);
+    setFormData({ ...formData, accounts: updatedAccounts });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -690,10 +734,16 @@ const EditItemModal = ({
       alert('请填写网站名称');
       return;
     }
+    if (!formData.categoryId) {
+      alert('请选择分类');
+      return;
+    }
     onSave(formData);
   };
 
   if (!showModal) return null;
+
+  const selectedCategory = categories.find(c => c.id === formData.categoryId);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -707,6 +757,39 @@ const EditItemModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">分类 *</label>
+            <select
+              value={formData.categoryId}
+              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value, subcategoryId: '' })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              required
+            >
+              <option value="">选择分类</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">子分类</label>
+              <select
+                value={formData.subcategoryId}
+                onChange={(e) => setFormData({ ...formData, subcategoryId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              >
+                <option value="">默认</option>
+                {selectedCategory.subcategories
+                  .filter(sub => sub.name !== '默认')
+                  .map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">网站名称 *</label>
             <input
@@ -728,6 +811,69 @@ const EditItemModal = ({
               placeholder="https://example.com"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">账户信息</label>
+              <button
+                type="button"
+                onClick={handleAddAccount}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                + 添加账户
+              </button>
+            </div>
+            
+            {formData.accounts.map((account, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-700">账户 {index + 1}</span>
+                  {formData.accounts.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAccount(index)}
+                      className="text-sm text-red-600 hover:text-red-700"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">用户名</label>
+                  <input
+                    type="text"
+                    value={account.username}
+                    onChange={(e) => handleAccountChange(index, 'username', e.target.value)}
+                    placeholder="用户名或邮箱"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">密码</label>
+                  <input
+                    type="text"
+                    value={account.password}
+                    onChange={(e) => handleAccountChange(index, 'password', e.target.value)}
+                    placeholder="密码"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">备注</label>
+                  <textarea
+                    value={account.note || ''}
+                    onChange={(e) => handleAccountChange(index, 'note', e.target.value)}
+                    placeholder="备注信息"
+                    rows="2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="flex gap-3 pt-4">
