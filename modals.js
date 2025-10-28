@@ -868,7 +868,7 @@ const EditItemModal = ({
                     value={account.note || ''}
                     onChange={(e) => handleAccountChange(index, 'note', e.target.value)}
                     placeholder="备注信息"
-                    rows="2"
+                    rows="8"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
                   />
                 </div>
