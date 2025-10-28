@@ -96,7 +96,7 @@ const Sidebar = ({
               </button>
             </div>
             
-            {expandedCategories[category.id] && (
+{expandedCategories[category.id] && (
   <>
     {/* 先渲染“默认”子分类中的所有密码项，直接显示在大类展开区域 */}
     {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
@@ -147,7 +147,6 @@ const Sidebar = ({
     }
   </>
 )}
-            ))}
           </div>
         ))}
       </div>
