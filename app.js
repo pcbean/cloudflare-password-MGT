@@ -406,15 +406,15 @@ function PasswordManager() {
     showNotificationFunc('图标已更新');
   };
 
-  const handleEditItem = async (editedData) => {
+    const handleEditItem = async (editedData) => {
     try {
       let updatedCategories = categories.map(cat => ({
         ...cat,
         subcategories: cat.subcategories.map(sub => ({
           ...sub,
           items: sub.items.filter(item => item.id !== itemToEdit.id)
-        })).filter(sub => sub.items.length > 0)
-      })).filter(cat => cat.subcategories.length > 0);
+        }))
+      }));
 
       const updatedItem = {
         ...itemToEdit,
