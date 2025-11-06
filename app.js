@@ -121,17 +121,17 @@ function PasswordManager() {
         const response = await fetch('/api/get-env-users');
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          setAdminUsers({ 'admin': 'admin123', 'pcbean': 'pcbean123' });
+      setAdminUsers({}); 
           return;
         }
         const data = await response.json();
         if (data.users && Object.keys(data.users).length > 0) {
           setAdminUsers(data.users);
         } else {
-          setAdminUsers({ 'admin': 'admin123', 'pcbean': 'pcbean123' });
+      setAdminUsers({}); 
         }
       } catch (error) {
-        setAdminUsers({ 'admin': 'admin123', 'pcbean': 'pcbean123' });
+      setAdminUsers({}); 
       }
     };
     fetchEnvUsers();
