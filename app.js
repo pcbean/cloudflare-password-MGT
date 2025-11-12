@@ -121,17 +121,17 @@ function PasswordManager() {
         const response = await fetch('/api/get-env-users');
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-      setAdminUsers({}); 
+          setAdminUsers({}); 
           return;
         }
         const data = await response.json();
         if (data.users && Object.keys(data.users).length > 0) {
           setAdminUsers(data.users);
         } else {
-      setAdminUsers({}); 
+          setAdminUsers({}); 
         }
       } catch (error) {
-      setAdminUsers({}); 
+        setAdminUsers({}); 
       }
     };
     fetchEnvUsers();
@@ -210,7 +210,7 @@ function PasswordManager() {
     }
   };
 
-    const handleLogin = (username, password) => {
+  const handleLogin = (username, password) => {
     if (adminUsers[username] && adminUsers[username] === password) {
       setIsAuthenticated(true);
       setCurrentUser(username);
@@ -288,7 +288,7 @@ function PasswordManager() {
     }
   };
 
-   const handleAddAccount = async () => {
+  const handleAddAccount = async () => {
     if (!selectedItem) return;
     setSelectedCategoryForAdd(selectedItem.id);
     setShowAddPasswordModal(true);
@@ -314,11 +314,10 @@ function PasswordManager() {
       showNotificationFunc('删除失败', 'error');
     }
   };
-   const handleAddPassword = async (newPasswordData) => {
+
+  const handleAddPassword = async (newPasswordData) => {
     try {
-      // 检查是否是给现有项目添加账户
       if (selectedItem && selectedCategoryForAdd === selectedItem.id) {
-        // 添加账户到当前项目
         const updatedCategories = categories.map(cat => ({
           ...cat,
           subcategories: cat.subcategories.map(sub => ({
@@ -348,7 +347,6 @@ function PasswordManager() {
         
         showNotificationFunc('账户已添加');
       } else {
-        // 添加新密码项目
         const updatedCategories = await addNewPassword(
           newPasswordData,
           categories,
@@ -384,6 +382,54 @@ function PasswordManager() {
     setShowIconSelectorModal(true);
   };
 
+  const handleReorderCategories = async (fromIndex, toIndex) => {
+    const newCategories = [...categories];
+    const [removed] = newCategories.splice(fromIndex, 1);
+    newCategories.splice(toIndex, 0, removed);
+    await saveData(newCategories);
+    showNotificationFunc('分类顺序已更新');
+  };
+
+  const handleReorderSubcategories = async (categoryId, fromIndex, toIndex) => {
+    const newCategories = categories.map(cat => {
+      if (cat.id === categoryId) {
+        const nonDefaultSubs = cat.subcategories.filter(sub => sub.name !== '默认');
+        const defaultSub = cat.subcategories.find(sub => sub.name === '默认');
+        const [removed] = nonDefaultSubs.splice(fromIndex, 1);
+        nonDefaultSubs.splice(toIndex, 0, removed);
+        return {
+          ...cat,
+          subcategories: defaultSub ? [defaultSub, ...nonDefaultSubs] : nonDefaultSubs
+        };
+      }
+      return cat;
+    });
+    await saveData(newCategories);
+    showNotificationFunc('子分类顺序已更新');
+  };
+
+  const handleReorderItems = async (categoryId, subcategoryId, fromIndex, toIndex) => {
+    const newCategories = categories.map(cat => {
+      if (cat.id === categoryId) {
+        return {
+          ...cat,
+          subcategories: cat.subcategories.map(sub => {
+            if (sub.id === subcategoryId) {
+              const newItems = [...sub.items];
+              const [removed] = newItems.splice(fromIndex, 1);
+              newItems.splice(toIndex, 0, removed);
+              return { ...sub, items: newItems };
+            }
+            return sub;
+          })
+        };
+      }
+      return cat;
+    });
+    await saveData(newCategories);
+    showNotificationFunc('密码项顺序已更新');
+  };
+
   const handleIconSelect = async (iconData) => {
     if (!iconSelectorTarget) return;
     
@@ -412,7 +458,7 @@ function PasswordManager() {
     showNotificationFunc('图标已更新');
   };
 
-    const handleEditItem = async (editedData) => {
+  const handleEditItem = async (editedData) => {
     try {
       let updatedCategories = categories.map(cat => ({
         ...cat,
@@ -524,6 +570,9 @@ function PasswordManager() {
         }}
         onIconManagement={handleIconManagement}
         onSelectIcon={handleSelectIcon}
+        onReorderCategories={handleReorderCategories}
+        onReorderSubcategories={handleReorderSubcategories}
+        onReorderItems={handleReorderItems}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -537,7 +586,7 @@ function PasswordManager() {
         
         <SecurityProgressBar categories={categories} />
 
-                <div className="flex-1 overflow-y-auto p-2 md:p-4">
+        <div className="flex-1 overflow-y-auto p-2 md:p-4">
           <PasswordDetail 
             selectedItem={selectedItem}
             showPassword={showPassword}
