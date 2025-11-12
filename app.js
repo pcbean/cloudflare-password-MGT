@@ -1,4 +1,4 @@
-// 主应用入口
+﻿// 主应用入口
 const { useState, useEffect } = React;
 
 // 安全状态进度条组件
@@ -386,8 +386,13 @@ function PasswordManager() {
     const newCategories = [...categories];
     const [removed] = newCategories.splice(fromIndex, 1);
     newCategories.splice(toIndex, 0, removed);
-    await saveData(newCategories);
-    showNotificationFunc('分类顺序已更新');
+    setCategories(newCategories);
+    try {
+      await storage.set(`passwords_${currentUser}`, JSON.stringify({ categories: newCategories }));
+    } catch (error) {
+      console.error('保存失败:', error);
+      showNotificationFunc('保存失败', 'error');
+    }
   };
 
   const handleReorderSubcategories = async (categoryId, fromIndex, toIndex) => {
@@ -404,8 +409,13 @@ function PasswordManager() {
       }
       return cat;
     });
-    await saveData(newCategories);
-    showNotificationFunc('子分类顺序已更新');
+    setCategories(newCategories);
+    try {
+      await storage.set(`passwords_${currentUser}`, JSON.stringify({ categories: newCategories }));
+    } catch (error) {
+      console.error('保存失败:', error);
+      showNotificationFunc('保存失败', 'error');
+    }
   };
 
   const handleReorderItems = async (categoryId, subcategoryId, fromIndex, toIndex) => {
@@ -426,8 +436,13 @@ function PasswordManager() {
       }
       return cat;
     });
-    await saveData(newCategories);
-    showNotificationFunc('密码项顺序已更新');
+    setCategories(newCategories);
+    try {
+      await storage.set(`passwords_${currentUser}`, JSON.stringify({ categories: newCategories }));
+    } catch (error) {
+      console.error('保存失败:', error);
+      showNotificationFunc('保存失败', 'error');
+    }
   };
 
   const handleIconSelect = async (iconData) => {
