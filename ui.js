@@ -597,4 +597,4 @@ const PasswordDetail = ({
       </div>
     </div>
   );
-};
+}; 
