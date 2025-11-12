@@ -32,9 +32,134 @@ const Sidebar = ({
   onExport,
   onAddPassword,
   onIconManagement,
-  onSelectIcon
+  onSelectIcon,
+  onReorderCategories,
+  onReorderSubcategories,
+  onReorderItems
 }) => {
+  const [dragState, setDragState] = useState({
+    isDragging: false,
+    draggedItem: null,
+    draggedIndex: null,
+    dragType: null,
+    categoryId: null,
+    subcategoryId: null,
+    touchTimer: null,
+    startY: 0,
+    currentY: 0
+  });
+
   if (!sidebarOpen) return null;
+
+  const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    
+    const timer = setTimeout(() => {
+      setDragState({
+        isDragging: true,
+        draggedItem: item,
+        draggedIndex: index,
+        dragType: type,
+        categoryId,
+        subcategoryId,
+        touchTimer: null,
+        startY: clientY,
+        currentY: clientY
+      });
+    }, 3000);
+
+    setDragState(prev => ({
+      ...prev,
+      touchTimer: timer,
+      startY: clientY
+    }));
+  };
+
+  const handleDragMove = (e) => {
+    if (!dragState.isDragging) return;
+    
+    e.preventDefault();
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+    setDragState(prev => ({
+      ...prev,
+      currentY: clientY
+    }));
+  };
+
+  const handleDragEnd = (e, targetIndex, categoryId = null, subcategoryId = null) => {
+    if (dragState.touchTimer) {
+      clearTimeout(dragState.touchTimer);
+    }
+
+    if (!dragState.isDragging) {
+      setDragState({
+        isDragging: false,
+        draggedItem: null,
+        draggedIndex: null,
+        dragType: null,
+        categoryId: null,
+        subcategoryId: null,
+        touchTimer: null,
+        startY: 0,
+        currentY: 0
+      });
+      return;
+    }
+
+    const { dragType, draggedIndex, categoryId: dragCategoryId, subcategoryId: dragSubcategoryId } = dragState;
+
+    if (draggedIndex === targetIndex) {
+      setDragState({
+        isDragging: false,
+        draggedItem: null,
+        draggedIndex: null,
+        dragType: null,
+        categoryId: null,
+        subcategoryId: null,
+        touchTimer: null,
+        startY: 0,
+        currentY: 0
+      });
+      return;
+    }
+
+    if (dragType === 'category') {
+      onReorderCategories(draggedIndex, targetIndex);
+    } else if (dragType === 'subcategory' && dragCategoryId === categoryId) {
+      onReorderSubcategories(categoryId, draggedIndex, targetIndex);
+    } else if (dragType === 'item' && dragCategoryId === categoryId && dragSubcategoryId === subcategoryId) {
+      onReorderItems(categoryId, subcategoryId, draggedIndex, targetIndex);
+    }
+
+    setDragState({
+      isDragging: false,
+      draggedItem: null,
+      draggedIndex: null,
+      dragType: null,
+      categoryId: null,
+      subcategoryId: null,
+      touchTimer: null,
+      startY: 0,
+      currentY: 0
+    });
+  };
+
+  const handleDragCancel = () => {
+    if (dragState.touchTimer) {
+      clearTimeout(dragState.touchTimer);
+    }
+    setDragState({
+      isDragging: false,
+      draggedItem: null,
+      draggedIndex: null,
+      dragType: null,
+      categoryId: null,
+      subcategoryId: null,
+      touchTimer: null,
+      startY: 0,
+      currentY: 0
+    });
+  };
 
   return (
     <div className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} ${
@@ -74,21 +199,34 @@ const Sidebar = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {filteredCategories.map(category => (
+        {filteredCategories.map((category, categoryIndex) => (
           <div key={category.id} className="space-y-1">
-            <div className="w-full flex items-center gap-2">
+            <div 
+              className="w-full flex items-center gap-2"
+              onMouseDown={(e) => handleDragStart(e, 'category', category, categoryIndex)}
+              onTouchStart={(e) => handleDragStart(e, 'category', category, categoryIndex)}
+              onMouseMove={handleDragMove}
+              onTouchMove={handleDragMove}
+              onMouseUp={(e) => handleDragEnd(e, categoryIndex)}
+              onTouchEnd={(e) => handleDragEnd(e, categoryIndex)}
+              onMouseLeave={handleDragCancel}
+              style={{
+                opacity: dragState.isDragging && dragState.dragType === 'category' && dragState.draggedIndex === categoryIndex ? 0.5 : 1,
+                cursor: dragState.isDragging && dragState.dragType === 'category' ? 'grabbing' : 'grab'
+              }}
+            >
               <button
                 onClick={() => toggleCategory(category.id)}
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
               >
-                 <div className="flex items-center space-x-3">
-<div className={`w-10 h-10 ${category.icon && category.icon.startsWith('data:image') ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
-  {category.icon && category.icon.startsWith('data:image') ? (
-    <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
-  ) : (
-    <span className="text-xl">{category.icon || '🔑'}</span>
-  )}
-</div>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 ${category.icon && category.icon.startsWith('data:image') ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+                    {category.icon && category.icon.startsWith('data:image') ? (
+                      <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="text-xl">{category.icon || '🔑'}</span>
+                    )}
+                  </div>
                   <span className="font-semibold text-gray-700 text-sm">{category.name}</span>
                 </div>
                 <Icon name={expandedCategories[category.id] ? 'ChevronDown' : 'ChevronRight'} className="w-4 h-4 text-gray-400" />
@@ -111,8 +249,7 @@ const Sidebar = ({
             
             {expandedCategories[category.id] && (
               <>
-                {/* 先渲染"默认"子分类中的所有密码项,直接显示在大类展开区域 */}
-                {category.subcategories?.find(sub => sub.name === '默认')?.items?.map(item => (
+                {category.subcategories?.find(sub => sub.name === '默认')?.items?.map((item, itemIndex) => (
                   <button
                     key={item.id}
                     onClick={() => {
@@ -121,10 +258,21 @@ const Sidebar = ({
                         setSidebarOpen(false);
                       }
                     }}
+                    onMouseDown={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                    onTouchStart={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                    onMouseMove={handleDragMove}
+                    onTouchMove={handleDragMove}
+                    onMouseUp={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                    onTouchEnd={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                    onMouseLeave={handleDragCancel}
                     className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
                       selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
                     }`}
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                    style={{
+                      WebkitTapHighlightColor: 'transparent',
+                      opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1,
+                      cursor: dragState.isDragging && dragState.dragType === 'item' ? 'grabbing' : 'grab'
+                    }}
                   >
                     <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
                       {item.website[0]?.toUpperCase()}
@@ -136,15 +284,28 @@ const Sidebar = ({
                   </button>
                 ))}
 
-                {/* 渲染其他非"默认"子分类 */}
                 {category.subcategories
                   ?.filter(sub => sub.name !== '默认')
-                  .map(subcategory => (
-                    <div key={subcategory.id} className="ml-6 space-y-1">
+                  .map((subcategory, subcategoryIndex) => (
+                    <div 
+                      key={subcategory.id} 
+                      className="ml-6 space-y-1"
+                      onMouseDown={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
+                      onTouchStart={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
+                      onMouseMove={handleDragMove}
+                      onTouchMove={handleDragMove}
+                      onMouseUp={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
+                      onTouchEnd={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
+                      onMouseLeave={handleDragCancel}
+                      style={{
+                        opacity: dragState.isDragging && dragState.dragType === 'subcategory' && dragState.draggedIndex === subcategoryIndex ? 0.5 : 1,
+                        cursor: dragState.isDragging && dragState.dragType === 'subcategory' ? 'grabbing' : 'grab'
+                      }}
+                    >
                       <div className="flex items-center justify-between px-3 py-2">
                         <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
                       </div>
-                  {subcategory.items?.map(item => (
+                      {subcategory.items?.map((item, itemIndex) => (
                         <button
                           key={item.id}
                           onClick={() => {
@@ -153,10 +314,33 @@ const Sidebar = ({
                               setSidebarOpen(false);
                             }
                           }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
+                          }}
+                          onMouseMove={handleDragMove}
+                          onTouchMove={handleDragMove}
+                          onMouseUp={(e) => {
+                            e.stopPropagation();
+                            handleDragEnd(e, itemIndex, category.id, subcategory.id);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.stopPropagation();
+                            handleDragEnd(e, itemIndex, category.id, subcategory.id);
+                          }}
+                          onMouseLeave={handleDragCancel}
                           className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
                             selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
                           }`}
-                          style={{ WebkitTapHighlightColor: 'transparent' }}
+                          style={{
+                            WebkitTapHighlightColor: 'transparent',
+                            opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1,
+                            cursor: dragState.isDragging && dragState.dragType === 'item' ? 'grabbing' : 'grab'
+                          }}
                         >
                           <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
                             {item.website[0]?.toUpperCase()}
@@ -177,7 +361,7 @@ const Sidebar = ({
       </div>
 
       <div className="p-4 border-t border-gray-100 space-y-2">
-              <button
+        <button
           onClick={() => setShowCategoryModal(true)}
           className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl hover:shadow-lg transition transform hover:scale-[1.02] font-semibold text-sm"
         >
@@ -270,7 +454,7 @@ const PasswordDetail = ({
 }) => {
   if (!selectedItem) return <EmptyState />;
 
-   return (
+  return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         
@@ -326,7 +510,7 @@ const PasswordDetail = ({
         </div>
 
         <div className="p-6">
-                    <div className="space-y-4">
+          <div className="space-y-4">
             {selectedItem.accounts?.map((account, index) => {
               const strength = getPasswordStrength(account.password);
               return (
@@ -340,7 +524,7 @@ const PasswordDetail = ({
                     </div>
                   </div>
                   
-                                   {account.username && (
+                  {account.username && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">用户名</label>
                       <div className="flex items-center space-x-1 md:space-x-2">
@@ -360,7 +544,7 @@ const PasswordDetail = ({
                     </div>
                   )}
 
-                                  {account.password && (
+                  {account.password && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">密码</label>
                       <div className="flex items-center space-x-1 md:space-x-2">
@@ -389,7 +573,7 @@ const PasswordDetail = ({
                     </div>
                   )}
 
-                                     {account.note && (
+                  {account.note && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">备注</label>
                       <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200 whitespace-pre-wrap">
