@@ -51,7 +51,8 @@ const Sidebar = ({
 
   if (!sidebarOpen) return null;
 
-  const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+    const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+    e.preventDefault();
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
     const timer = setTimeout(() => {
@@ -71,12 +72,19 @@ const Sidebar = ({
     setDragState(prev => ({
       ...prev,
       touchTimer: timer,
-      startY: clientY
+      startY: clientY,
+      isDragging: false
     }));
   };
 
   const handleDragMove = (e) => {
-    if (!dragState.isDragging) return;
+    if (!dragState.isDragging) {
+      const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+      if (Math.abs(clientY - dragState.startY) > 10) {
+        handleDragCancel();
+      }
+      return;
+    }
     
     e.preventDefault();
     const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
