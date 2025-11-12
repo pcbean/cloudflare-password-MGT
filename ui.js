@@ -45,10 +45,65 @@ const Sidebar = ({
     categoryId: null,
     subcategoryId: null,
     startY: 0,
-    currentY: 0
+    currentY: 0,
+    overIndex: null
   });
 
   if (!sidebarOpen) return null;
+
+  // 使用 useEffect 绑定全局拖动事件
+  useEffect(() => {
+    if (!dragState.isDragging) return;
+
+    const handleMove = (e) => {
+      e.preventDefault();
+      const clientY = e.type === 'mousemove' ? e.clientY : e.touches?.[0]?.clientY;
+      if (clientY) {
+        setDragState(prev => ({
+          ...prev,
+          currentY: clientY
+        }));
+      }
+    };
+
+    const handleEnd = () => {
+      if (dragState.isDragging && dragState.overIndex !== null && dragState.draggedIndex !== dragState.overIndex) {
+        const { dragType, draggedIndex, overIndex, categoryId, subcategoryId } = dragState;
+        
+        if (dragType === 'category') {
+          onReorderCategories(draggedIndex, overIndex);
+        } else if (dragType === 'subcategory' && categoryId) {
+          onReorderSubcategories(categoryId, draggedIndex, overIndex);
+        } else if (dragType === 'item' && categoryId && subcategoryId) {
+          onReorderItems(categoryId, subcategoryId, draggedIndex, overIndex);
+        }
+      }
+
+      setDragState({
+        isDragging: false,
+        draggedItem: null,
+        draggedIndex: null,
+        dragType: null,
+        categoryId: null,
+        subcategoryId: null,
+        startY: 0,
+        currentY: 0,
+        overIndex: null
+      });
+    };
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchend', handleEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchend', handleEnd);
+    };
+  }, [dragState.isDragging, dragState.overIndex, dragState.draggedIndex, dragState.categoryId, dragState.subcategoryId, onReorderCategories, onReorderSubcategories, onReorderItems]);
 
   const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.stopPropagation();
@@ -62,46 +117,19 @@ const Sidebar = ({
       categoryId,
       subcategoryId,
       startY: clientY,
-      currentY: clientY
+      currentY: clientY,
+      overIndex: index
     });
   };
 
-  const handleDragMove = (e) => {
-    if (!dragState.isDragging) return;
-    
+  const handleDragOver = (e, index) => {
     e.preventDefault();
-    const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-    setDragState(prev => ({
-      ...prev,
-      currentY: clientY
-    }));
-  };
-
-  const handleDragEnd = (e, targetIndex, categoryId = null, subcategoryId = null) => {
-    if (!dragState.isDragging) return;
-
-    const { dragType, draggedIndex, categoryId: dragCategoryId, subcategoryId: dragSubcategoryId } = dragState;
-
-    if (draggedIndex !== targetIndex) {
-      if (dragType === 'category') {
-        onReorderCategories(draggedIndex, targetIndex);
-      } else if (dragType === 'subcategory' && dragCategoryId === categoryId) {
-        onReorderSubcategories(categoryId, draggedIndex, targetIndex);
-      } else if (dragType === 'item' && dragCategoryId === categoryId && dragSubcategoryId === subcategoryId) {
-        onReorderItems(categoryId, subcategoryId, draggedIndex, targetIndex);
-      }
+    if (dragState.isDragging && dragState.overIndex !== index) {
+      setDragState(prev => ({
+        ...prev,
+        overIndex: index
+      }));
     }
-
-    setDragState({
-      isDragging: false,
-      draggedItem: null,
-      draggedIndex: null,
-      dragType: null,
-      categoryId: null,
-      subcategoryId: null,
-      startY: 0,
-      currentY: 0
-    });
   };
 
   return (
@@ -144,14 +172,18 @@ const Sidebar = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {filteredCategories.map((category, categoryIndex) => (
           <div key={category.id} className="space-y-1">
-            <div className="w-full flex items-center gap-2">
+            <div 
+              className="w-full flex items-center gap-2"
+              onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'category' && handleDragOver(e, categoryIndex)}
+              style={{
+                backgroundColor: dragState.isDragging && dragState.dragType === 'category' && dragState.overIndex === categoryIndex ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
+                borderRadius: '0.75rem',
+                transition: 'background-color 0.2s'
+              }}
+            >
               <button
                 onMouseDown={(e) => handleDragStart(e, 'category', category, categoryIndex)}
                 onTouchStart={(e) => handleDragStart(e, 'category', category, categoryIndex)}
-                onMouseMove={handleDragMove}
-                onTouchMove={handleDragMove}
-                onMouseUp={(e) => handleDragEnd(e, categoryIndex)}
-                onTouchEnd={(e) => handleDragEnd(e, categoryIndex)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
                 title="拖动排序"
                 style={{
@@ -197,14 +229,19 @@ const Sidebar = ({
             {expandedCategories[category.id] && (
               <>
                 {category.subcategories?.find(sub => sub.name === '默认')?.items?.map((item, itemIndex) => (
-                  <div key={item.id} className="flex items-center gap-2">
+                  <div 
+                    key={item.id} 
+                    className="flex items-center gap-2"
+                    onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'item' && handleDragOver(e, itemIndex)}
+                    style={{
+                      backgroundColor: dragState.isDragging && dragState.dragType === 'item' && dragState.overIndex === itemIndex ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
+                      borderRadius: '0.75rem',
+                      transition: 'background-color 0.2s'
+                    }}
+                  >
                     <button
                       onMouseDown={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
                       onTouchStart={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                      onMouseMove={handleDragMove}
-                      onTouchMove={handleDragMove}
-                      onMouseUp={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                      onTouchEnd={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
                       className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
                       title="拖动排序"
                       style={{
@@ -241,14 +278,18 @@ const Sidebar = ({
                   ?.filter(sub => sub.name !== '默认')
                   .map((subcategory, subcategoryIndex) => (
                     <div key={subcategory.id} className="ml-6 space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div 
+                        className="flex items-center gap-2"
+                        onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'subcategory' && handleDragOver(e, subcategoryIndex)}
+                        style={{
+                          backgroundColor: dragState.isDragging && dragState.dragType === 'subcategory' && dragState.overIndex === subcategoryIndex ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
+                          borderRadius: '0.75rem',
+                          transition: 'background-color 0.2s'
+                        }}
+                      >
                         <button
                           onMouseDown={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
                           onTouchStart={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
-                          onMouseMove={handleDragMove}
-                          onTouchMove={handleDragMove}
-                          onMouseUp={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
-                          onTouchEnd={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
                           title="拖动排序"
                           style={{
@@ -264,7 +305,16 @@ const Sidebar = ({
                       </div>
                       
                       {subcategory.items?.map((item, itemIndex) => (
-                        <div key={item.id} className="flex items-center gap-2">
+                        <div 
+                          key={item.id} 
+                          className="flex items-center gap-2"
+                          onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'item' && handleDragOver(e, itemIndex)}
+                          style={{
+                            backgroundColor: dragState.isDragging && dragState.dragType === 'item' && dragState.overIndex === itemIndex ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
+                            borderRadius: '0.75rem',
+                            transition: 'background-color 0.2s'
+                          }}
+                        >
                           <button
                             onMouseDown={(e) => {
                               e.stopPropagation();
@@ -273,16 +323,6 @@ const Sidebar = ({
                             onTouchStart={(e) => {
                               e.stopPropagation();
                               handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
-                            }}
-                            onMouseMove={handleDragMove}
-                            onTouchMove={handleDragMove}
-                            onMouseUp={(e) => {
-                              e.stopPropagation();
-                              handleDragEnd(e, itemIndex, category.id, subcategory.id);
-                            }}
-                            onTouchEnd={(e) => {
-                              e.stopPropagation();
-                              handleDragEnd(e, itemIndex, category.id, subcategory.id);
                             }}
                             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
                             title="拖动排序"
