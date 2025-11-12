@@ -44,7 +44,6 @@ const Sidebar = ({
     dragType: null,
     categoryId: null,
     subcategoryId: null,
-    touchTimer: null,
     startY: 0,
     currentY: 0
   });
@@ -52,41 +51,23 @@ const Sidebar = ({
   if (!sidebarOpen) return null;
 
   const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
-    e.preventDefault();
+    e.stopPropagation();
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
-    const timer = setTimeout(() => {
-      setDragState({
-        isDragging: true,
-        draggedItem: item,
-        draggedIndex: index,
-        dragType: type,
-        categoryId,
-        subcategoryId,
-        touchTimer: null,
-        startY: clientY,
-        currentY: clientY
-      });
-    }, 3000);
-
-    setDragState(prev => ({
-      ...prev,
-      touchTimer: timer,
+    setDragState({
+      isDragging: true,
+      draggedItem: item,
+      draggedIndex: index,
+      dragType: type,
+      categoryId,
+      subcategoryId,
       startY: clientY,
-      isDragging: false
-    }));
+      currentY: clientY
+    });
   };
 
   const handleDragMove = (e) => {
-    if (!dragState.isDragging) {
-      if (dragState.touchTimer) {
-        const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-        if (Math.abs(clientY - dragState.startY) > 10) {
-          handleDragCancel();
-        }
-      }
-      return;
-    }
+    if (!dragState.isDragging) return;
     
     e.preventDefault();
     const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
@@ -97,48 +78,18 @@ const Sidebar = ({
   };
 
   const handleDragEnd = (e, targetIndex, categoryId = null, subcategoryId = null) => {
-    if (dragState.touchTimer) {
-      clearTimeout(dragState.touchTimer);
-    }
-
-    if (!dragState.isDragging) {
-      setDragState({
-        isDragging: false,
-        draggedItem: null,
-        draggedIndex: null,
-        dragType: null,
-        categoryId: null,
-        subcategoryId: null,
-        touchTimer: null,
-        startY: 0,
-        currentY: 0
-      });
-      return;
-    }
+    if (!dragState.isDragging) return;
 
     const { dragType, draggedIndex, categoryId: dragCategoryId, subcategoryId: dragSubcategoryId } = dragState;
 
-    if (draggedIndex === targetIndex) {
-      setDragState({
-        isDragging: false,
-        draggedItem: null,
-        draggedIndex: null,
-        dragType: null,
-        categoryId: null,
-        subcategoryId: null,
-        touchTimer: null,
-        startY: 0,
-        currentY: 0
-      });
-      return;
-    }
-
-    if (dragType === 'category') {
-      onReorderCategories(draggedIndex, targetIndex);
-    } else if (dragType === 'subcategory' && dragCategoryId === categoryId) {
-      onReorderSubcategories(categoryId, draggedIndex, targetIndex);
-    } else if (dragType === 'item' && dragCategoryId === categoryId && dragSubcategoryId === subcategoryId) {
-      onReorderItems(categoryId, subcategoryId, draggedIndex, targetIndex);
+    if (draggedIndex !== targetIndex) {
+      if (dragType === 'category') {
+        onReorderCategories(draggedIndex, targetIndex);
+      } else if (dragType === 'subcategory' && dragCategoryId === categoryId) {
+        onReorderSubcategories(categoryId, draggedIndex, targetIndex);
+      } else if (dragType === 'item' && dragCategoryId === categoryId && dragSubcategoryId === subcategoryId) {
+        onReorderItems(categoryId, subcategoryId, draggedIndex, targetIndex);
+      }
     }
 
     setDragState({
@@ -148,24 +99,6 @@ const Sidebar = ({
       dragType: null,
       categoryId: null,
       subcategoryId: null,
-      touchTimer: null,
-      startY: 0,
-      currentY: 0
-    });
-  };
-
-  const handleDragCancel = () => {
-    if (dragState.touchTimer) {
-      clearTimeout(dragState.touchTimer);
-    }
-    setDragState({
-      isDragging: false,
-      draggedItem: null,
-      draggedIndex: null,
-      dragType: null,
-      categoryId: null,
-      subcategoryId: null,
-      touchTimer: null,
       startY: 0,
       currentY: 0
     });
@@ -211,20 +144,23 @@ const Sidebar = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {filteredCategories.map((category, categoryIndex) => (
           <div key={category.id} className="space-y-1">
-            <div 
-              className="w-full flex items-center gap-2"
-              onMouseDown={(e) => handleDragStart(e, 'category', category, categoryIndex)}
-              onTouchStart={(e) => handleDragStart(e, 'category', category, categoryIndex)}
-              onMouseMove={handleDragMove}
-              onTouchMove={handleDragMove}
-              onMouseUp={(e) => handleDragEnd(e, categoryIndex)}
-              onTouchEnd={(e) => handleDragEnd(e, categoryIndex)}
-              onMouseLeave={handleDragCancel}
-              style={{
-                opacity: dragState.isDragging && dragState.dragType === 'category' && dragState.draggedIndex === categoryIndex ? 0.5 : 1,
-                cursor: dragState.isDragging && dragState.dragType === 'category' ? 'grabbing' : 'grab'
-              }}
-            >
+            <div className="w-full flex items-center gap-2">
+              <button
+                onMouseDown={(e) => handleDragStart(e, 'category', category, categoryIndex)}
+                onTouchStart={(e) => handleDragStart(e, 'category', category, categoryIndex)}
+                onMouseMove={handleDragMove}
+                onTouchMove={handleDragMove}
+                onMouseUp={(e) => handleDragEnd(e, categoryIndex)}
+                onTouchEnd={(e) => handleDragEnd(e, categoryIndex)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
+                title="拖动排序"
+                style={{
+                  opacity: dragState.isDragging && dragState.dragType === 'category' && dragState.draggedIndex === categoryIndex ? 0.5 : 1
+                }}
+              >
+                <Icon name="GripVertical" className="w-4 h-4" />
+              </button>
+              
               <button
                 onClick={() => toggleCategory(category.id)}
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
@@ -241,6 +177,7 @@ const Sidebar = ({
                 </div>
                 <Icon name={expandedCategories[category.id] ? 'ChevronDown' : 'ChevronRight'} className="w-4 h-4 text-gray-400" />
               </button>
+              
               <button
                 onClick={() => onSelectIcon('category', category.id)}
                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
@@ -260,106 +197,123 @@ const Sidebar = ({
             {expandedCategories[category.id] && (
               <>
                 {category.subcategories?.find(sub => sub.name === '默认')?.items?.map((item, itemIndex) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedItem(item);
-                      if (isMobile) {
-                        setSidebarOpen(false);
-                      }
-                    }}
-                    onMouseDown={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                    onTouchStart={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                    onMouseMove={handleDragMove}
-                    onTouchMove={handleDragMove}
-                    onMouseUp={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                    onTouchEnd={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
-                    onMouseLeave={handleDragCancel}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
-                      selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-                    }`}
-                    style={{
-                      WebkitTapHighlightColor: 'transparent',
-                      opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1,
-                      cursor: dragState.isDragging && dragState.dragType === 'item' ? 'grabbing' : 'grab'
-                    }}
-                  >
-                    <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                      {item.website[0]?.toUpperCase()}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-gray-800">{item.website}</div>
-                      <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
-                    </div>
-                  </button>
+                  <div key={item.id} className="flex items-center gap-2">
+                    <button
+                      onMouseDown={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                      onTouchStart={(e) => handleDragStart(e, 'item', item, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                      onMouseMove={handleDragMove}
+                      onTouchMove={handleDragMove}
+                      onMouseUp={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                      onTouchEnd={(e) => handleDragEnd(e, itemIndex, category.id, category.subcategories.find(sub => sub.name === '默认')?.id)}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
+                      title="拖动排序"
+                      style={{
+                        opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1
+                      }}
+                    >
+                      <Icon name="GripVertical" className="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setSelectedItem(item);
+                        if (isMobile) {
+                          setSidebarOpen(false);
+                        }
+                      }}
+                      className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
+                        selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                      }`}
+                      style={{ WebkitTapHighlightColor: 'transparent' }}
+                    >
+                      <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+                        {item.website[0]?.toUpperCase()}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+                        <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+                      </div>
+                    </button>
+                  </div>
                 ))}
 
                 {category.subcategories
                   ?.filter(sub => sub.name !== '默认')
                   .map((subcategory, subcategoryIndex) => (
-                    <div 
-                      key={subcategory.id} 
-                      className="ml-6 space-y-1"
-                      onMouseDown={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
-                      onTouchStart={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
-                      onMouseMove={handleDragMove}
-                      onTouchMove={handleDragMove}
-                      onMouseUp={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
-                      onTouchEnd={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
-                      onMouseLeave={handleDragCancel}
-                      style={{
-                        opacity: dragState.isDragging && dragState.dragType === 'subcategory' && dragState.draggedIndex === subcategoryIndex ? 0.5 : 1,
-                        cursor: dragState.isDragging && dragState.dragType === 'subcategory' ? 'grabbing' : 'grab'
-                      }}
-                    >
-                      <div className="flex items-center justify-between px-3 py-2">
-                        <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
-                      </div>
-                      {subcategory.items?.map((item, itemIndex) => (
+                    <div key={subcategory.id} className="ml-6 space-y-1">
+                      <div className="flex items-center gap-2">
                         <button
-                          key={item.id}
-                          onClick={() => {
-                            setSelectedItem(item);
-                            if (isMobile) {
-                              setSidebarOpen(false);
-                            }
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
-                            handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
-                          }}
-                          onTouchStart={(e) => {
-                            e.stopPropagation();
-                            handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
-                          }}
+                          onMouseDown={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
+                          onTouchStart={(e) => handleDragStart(e, 'subcategory', subcategory, subcategoryIndex, category.id)}
                           onMouseMove={handleDragMove}
                           onTouchMove={handleDragMove}
-                          onMouseUp={(e) => {
-                            e.stopPropagation();
-                            handleDragEnd(e, itemIndex, category.id, subcategory.id);
-                          }}
-                          onTouchEnd={(e) => {
-                            e.stopPropagation();
-                            handleDragEnd(e, itemIndex, category.id, subcategory.id);
-                          }}
-                          onMouseLeave={handleDragCancel}
-                          className={`w-full flex items-center space-x-3 p-3 rounded-xl transition ${
-                            selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-                          }`}
+                          onMouseUp={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
+                          onTouchEnd={(e) => handleDragEnd(e, subcategoryIndex, category.id)}
+                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
+                          title="拖动排序"
                           style={{
-                            WebkitTapHighlightColor: 'transparent',
-                            opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1,
-                            cursor: dragState.isDragging && dragState.dragType === 'item' ? 'grabbing' : 'grab'
+                            opacity: dragState.isDragging && dragState.dragType === 'subcategory' && dragState.draggedIndex === subcategoryIndex ? 0.5 : 1
                           }}
                         >
-                          <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                            {item.website[0]?.toUpperCase()}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="text-sm font-semibold text-gray-800">{item.website}</div>
-                            <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
-                          </div>
+                          <Icon name="GripVertical" className="w-4 h-4" />
                         </button>
+                        
+                        <div className="flex-1 flex items-center justify-between px-3 py-2">
+                          <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
+                        </div>
+                      </div>
+                      
+                      {subcategory.items?.map((item, itemIndex) => (
+                        <div key={item.id} className="flex items-center gap-2">
+                          <button
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
+                            }}
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              handleDragStart(e, 'item', item, itemIndex, category.id, subcategory.id);
+                            }}
+                            onMouseMove={handleDragMove}
+                            onTouchMove={handleDragMove}
+                            onMouseUp={(e) => {
+                              e.stopPropagation();
+                              handleDragEnd(e, itemIndex, category.id, subcategory.id);
+                            }}
+                            onTouchEnd={(e) => {
+                              e.stopPropagation();
+                              handleDragEnd(e, itemIndex, category.id, subcategory.id);
+                            }}
+                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-grab active:cursor-grabbing"
+                            title="拖动排序"
+                            style={{
+                              opacity: dragState.isDragging && dragState.dragType === 'item' && dragState.draggedIndex === itemIndex ? 0.5 : 1
+                            }}
+                          >
+                            <Icon name="GripVertical" className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setSelectedItem(item);
+                              if (isMobile) {
+                                setSidebarOpen(false);
+                              }
+                            }}
+                            className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
+                              selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                            }`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                          >
+                            <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
+                              {item.website[0]?.toUpperCase()}
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="text-sm font-semibold text-gray-800">{item.website}</div>
+                              <div className="text-xs text-gray-500">{item.accounts?.length || 0} 账户</div>
+                            </div>
+                          </button>
+                        </div>
                       ))}
                     </div>
                   ))
