@@ -51,7 +51,7 @@ const Sidebar = ({
 
   if (!sidebarOpen) return null;
 
-    const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+  const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.preventDefault();
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
@@ -77,7 +77,7 @@ const Sidebar = ({
     }));
   };
 
-   const handleDragMove = (e) => {
+  const handleDragMove = (e) => {
     if (!dragState.isDragging) {
       if (dragState.touchTimer) {
         const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
