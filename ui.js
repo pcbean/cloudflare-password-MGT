@@ -77,17 +77,19 @@ const Sidebar = ({
     }));
   };
 
-  const handleDragMove = (e) => {
+   const handleDragMove = (e) => {
     if (!dragState.isDragging) {
-      const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-      if (Math.abs(clientY - dragState.startY) > 10) {
-        handleDragCancel();
+      if (dragState.touchTimer) {
+        const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+        if (Math.abs(clientY - dragState.startY) > 10) {
+          handleDragCancel();
+        }
       }
       return;
     }
     
     e.preventDefault();
-    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+    const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
     setDragState(prev => ({
       ...prev,
       currentY: clientY
@@ -597,4 +599,4 @@ const PasswordDetail = ({
       </div>
     </div>
   );
-}; 
+};
