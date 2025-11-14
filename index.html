@@ -4,24 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>密码管理器</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="style.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @keyframes slide-in {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .animate-slide-in {
+      animation: slide-in 0.3s ease-out;
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
   
-<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- 关键修复：按正确顺序加载 -->
   <script src="api-client.js"></script>
-  <script src="icons.js" type="text/babel"></script>
-  <script src="utils.js" type="text/babel"></script>
-  <script src="auth.js" type="text/babel"></script>
-  <script src="modals.js" type="text/babel"></script>
-  <script src="actions.js" type="text/babel"></script>
-  <script src="ui.js" type="text/babel"></script>
-  <script src="app.js" type="text/babel"></script>
+  <script src="icons.js"></script>
+  <script src="utils.js"></script>
+  <script src="actions.js"></script>
+  <script src="auth.js"></script>
+  <script src="modals.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
