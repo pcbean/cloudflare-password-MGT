@@ -148,61 +148,6 @@ function PasswordManager() {
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchCurrentX = 0;
-    let isSidebarGesture = false;
-
-    const handleTouchStart = (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      
-      if (touchStartX < 20) {
-        isSidebarGesture = true;
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isSidebarGesture) return;
-      
-      touchCurrentX = e.touches[0].clientX;
-      const deltaX = touchCurrentX - touchStartX;
-      const deltaY = e.touches[0].clientY - touchStartY;
-      
-      if (deltaX > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
-        e.preventDefault();
-      }
-    };
-
-    const handleTouchEnd = () => {
-      if (!isSidebarGesture) return;
-      
-      const deltaX = touchCurrentX - touchStartX;
-      
-      if (deltaX > 50) {
-        setSidebarOpen(true);
-      }
-      
-      isSidebarGesture = false;
-      touchStartX = 0;
-      touchStartY = 0;
-      touchCurrentX = 0;
-    };
-
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isMobile]);
-
-  useEffect(() => {
     if (isAuthenticated && currentUser) {
       loadData();
     }
