@@ -105,11 +105,9 @@ const Sidebar = ({
     };
   }, [dragState.isDragging, dragState.overIndex, dragState.draggedIndex, dragState.categoryId, dragState.subcategoryId, onReorderCategories, onReorderSubcategories, onReorderItems]);
 
-    const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
-    if (isMobile) return; // 手机端直接返回,不处理任何拖拽
-    
+  const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.stopPropagation();
-    const clientY = e.clientY;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
     setDragState({
       isDragging: true,
