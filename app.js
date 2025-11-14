@@ -137,7 +137,7 @@ function PasswordManager() {
     fetchEnvUsers();
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
       if (window.innerWidth < 768) setSidebarOpen(false);
@@ -146,6 +146,20 @@ function PasswordManager() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    const handleOpenSidebar = () => {
+      if (isMobile) {
+        setSidebarOpen(true);
+      }
+    };
+    
+    window.addEventListener('openSidebarGesture', handleOpenSidebar);
+    
+    return () => {
+      window.removeEventListener('openSidebarGesture', handleOpenSidebar);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
