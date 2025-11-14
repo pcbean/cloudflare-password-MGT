@@ -120,7 +120,10 @@ const Sidebar = ({
 
   const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.stopPropagation();
-	e.preventDefault(); 
+	  // 只在触摸事件时阻止默认行为
+  if (e.type === 'touchstart') {
+    e.preventDefault();
+  }
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
     setDragState({
