@@ -253,6 +253,10 @@ const Sidebar = ({
                     
                     <button
                       onClick={() => {
+                        console.log('=== 点击密码项 (默认子分类) ===');
+                        console.log('选中项目:', item);
+                        console.log('账户信息:', item.accounts);
+                        console.log('账户数量:', item.accounts?.length);
                         setSelectedItem(item);
                         if (isMobile) {
                           setSidebarOpen(false);
@@ -335,6 +339,10 @@ const Sidebar = ({
                           
                           <button
                             onClick={() => {
+                              console.log('=== 点击密码项 (子分类) ===');
+                              console.log('选中项目:', item);
+                              console.log('账户信息:', item.accounts);
+                              console.log('账户数量:', item.accounts?.length);
                               setSelectedItem(item);
                               if (isMobile) {
                                 setSidebarOpen(false);

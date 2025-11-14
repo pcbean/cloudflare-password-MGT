@@ -175,12 +175,25 @@ function PasswordManager() {
   };
 
   const loadData = async () => {
+    console.log('=== 开始加载数据 ===');
+    console.log('当前用户:', currentUser);
     try {
       const result = await storage.get(`passwords_${currentUser}`);
+      console.log('Storage 返回结果:', result);
+      
       if (result && result.value) {
         const data = JSON.parse(result.value);
+        console.log('解析后的数据:', data);
+        console.log('分类数量:', data.categories?.length);
+        
+        if (data.categories && data.categories.length > 0) {
+          console.log('第一个分类:', data.categories[0]);
+          console.log('第一个分类的子分类:', data.categories[0].subcategories);
+        }
+        
         setCategories(data.categories || []);
       } else {
+        console.log('没有找到数据,使用示例数据');
         setCategories(SAMPLE_DATA.categories);
         await saveData(SAMPLE_DATA.categories);
       }
@@ -210,8 +223,13 @@ function PasswordManager() {
     }
   };
 
-    const handleLogin = (username, password) => {
+        const handleLogin = (username, password) => {
+    console.log('=== 登录尝试 ===');
+    console.log('用户名:', username);
+    console.log('所有用户:', Object.keys(adminUsers));
+    
     if (adminUsers[username] && adminUsers[username] === password) {
+      console.log('✅ 登录成功');
       setIsAuthenticated(true);
       setCurrentUser(username);
       showNotificationFunc(`欢迎回来, ${username}!`);
@@ -223,6 +241,7 @@ function PasswordManager() {
       
       return true;
     } else {
+      console.log('❌ 登录失败');
       return false;
     }
   };
