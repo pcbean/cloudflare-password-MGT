@@ -64,8 +64,6 @@ const Sidebar = ({
     overIndex: null
   });
 
-  if (!sidebarOpen) return null;
-
   // 使用 useEffect 绑定全局拖动事件
   useEffect(() => {
     if (!dragState.isDragging) return;
@@ -146,6 +144,9 @@ const Sidebar = ({
       }));
     }
   };
+
+  // 所有 hooks 执行完毕后再进行条件返回
+  if (!sidebarOpen) return null;
 
   return (
     <div className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} ${
@@ -268,10 +269,6 @@ const Sidebar = ({
                     
                     <button
                       onClick={() => {
-                        console.log('=== 点击密码项 (默认子分类) ===');
-                        console.log('选中项目:', item);
-                        console.log('账户信息:', item.accounts);
-                        console.log('账户数量:', item.accounts?.length);
                         setSelectedItem(item);
                         if (isMobile) {
                           setSidebarOpen(false);
@@ -354,10 +351,6 @@ const Sidebar = ({
                           
                           <button
                             onClick={() => {
-                              console.log('=== 点击密码项 (子分类) ===');
-                              console.log('选中项目:', item);
-                              console.log('账户信息:', item.accounts);
-                              console.log('账户数量:', item.accounts?.length);
                               setSelectedItem(item);
                               if (isMobile) {
                                 setSidebarOpen(false);
