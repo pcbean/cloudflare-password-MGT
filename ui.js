@@ -441,7 +441,7 @@ const EmptyState = () => {
   );
 };
 
-// 密码详情组件 - 修复后的版本
+// 密码详情组件
 const PasswordDetail = ({ 
   selectedItem, 
   showPassword, 
@@ -457,12 +457,8 @@ const PasswordDetail = ({
 }) => {
   if (!selectedItem) return <EmptyState />;
 
-  // 确保使用全局 getPasswordStrength 函数
+  // 定义本地密码强度检测函数
   const getStrength = (password) => {
-    if (typeof window.getPasswordStrength === 'function') {
-      return window.getPasswordStrength(password);
-    }
-    // 回退方案
     if (!password) return { strength: 0, label: '', color: 'bg-gray-300' };
     let strength = 0;
     if (password.length >= 8) strength++;
