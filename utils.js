@@ -106,7 +106,7 @@ const filterItems = (categories, searchTerm) => {
 
 // 添加新项目
 const addNewItem = async (newItem, categories, saveData, showNotification) => {
-  // 移除必填校验，允许空值
+  // 移除必填校验,允许空值
   if (!newItem.category && categories.length === 0) {
     showNotification('至少需要一个分类', 'error');
     return null;
@@ -187,3 +187,11 @@ const deleteItem = async (categoryId, subcategoryId, itemId, categories, saveDat
   showNotification('项目已删除');
   return updatedCategories;
 };
+
+// 暴露到全局
+window.getPasswordStrength = getPasswordStrength;
+window.calculateOverallSecurity = calculateOverallSecurity;
+window.getFaviconUrl = getFaviconUrl;
+window.copyToClipboard = copyToClipboard;
+window.exportToCSV = exportToCSV;
+window.filterItems = filterItems;
