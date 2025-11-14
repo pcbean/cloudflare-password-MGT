@@ -28,6 +28,10 @@
       overscroll-behavior-x: none;
     }
   </style>
+</head>
+<body>
+  <div id="root"></div>
+  
   <script>
     // 屏幕边缘滑动手势管理
     let touchStartX = 0;
@@ -66,7 +70,6 @@
       
       // 如果向右滑动超过50px,触发打开侧边栏
       if (deltaX > 50) {
-        // 通过自定义事件通知React组件打开侧边栏
         window.dispatchEvent(new CustomEvent('openSidebarGesture'));
       }
       
@@ -76,9 +79,6 @@
       touchCurrentX = 0;
     });
   </script>
-</head>
-<body>
-  <div id="root"></div>
   
   <script src="api-client.js"></script>
   <script src="icons.js"></script>
