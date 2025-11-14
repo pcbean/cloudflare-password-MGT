@@ -1,11 +1,6 @@
 // 主界面 UI 组件
 const { useState, useEffect } = React;
 
-// 引用全局工具函数
-const passwordStrengthChecker = typeof getPasswordStrength === 'function' 
-  ? getPasswordStrength 
-  : (password) => ({ strength: 0, label: '', color: 'bg-gray-300' });
-
 // 通知组件
 const Notification = ({ notification }) => {
   if (!notification) return null;
@@ -56,7 +51,6 @@ const Sidebar = ({
 
   if (!sidebarOpen) return null;
 
-  // 使用 useEffect 绑定全局拖动事件
   useEffect(() => {
     if (!dragState.isDragging) return;
 
@@ -203,7 +197,7 @@ const Sidebar = ({
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
               >
                 <div className="flex items-center space-x-3">
-                                    <div className={`w-10 h-10 ${category.icon && typeof category.icon === 'string' && category.icon.startsWith('data:image') && category.icon.length > 20 ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+                  <div className={`w-10 h-10 ${category.icon && typeof category.icon === 'string' && category.icon.startsWith('data:image') && category.icon.length > 20 ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
                     {category.icon && typeof category.icon === 'string' && category.icon.startsWith('data:image') && category.icon.length > 20 ? (
                       <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
                     ) : (
@@ -447,7 +441,7 @@ const EmptyState = () => {
   );
 };
 
-// 密码详情组件
+// 密码详情组件 - 修复后的版本
 const PasswordDetail = ({ 
   selectedItem, 
   showPassword, 
@@ -462,6 +456,24 @@ const PasswordDetail = ({
   onSelectIcon
 }) => {
   if (!selectedItem) return <EmptyState />;
+
+  // 确保使用全局 getPasswordStrength 函数
+  const getStrength = (password) => {
+    if (typeof window.getPasswordStrength === 'function') {
+      return window.getPasswordStrength(password);
+    }
+    // 回退方案
+    if (!password) return { strength: 0, label: '', color: 'bg-gray-300' };
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    if (strength <= 2) return { strength, label: '弱', color: 'bg-red-500' };
+    if (strength <= 3) return { strength, label: '中', color: 'bg-yellow-500' };
+    return { strength, label: '强', color: 'bg-green-500' };
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -522,77 +534,77 @@ const PasswordDetail = ({
           <div className="space-y-4">
             {selectedItem.accounts && selectedItem.accounts.length > 0 ? (
               selectedItem.accounts.map((account, index) => {
-                const strength = passwordStrengthChecker(account.password);
-  return (
-                <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-gray-700">账户 {index + 1}</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500">{strength.label}</span>
-                      <div className={`w-16 h-1.5 rounded-full ${strength.color}`}></div>
+                const strength = getStrength(account.password);
+                return (
+                  <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-700">账户 {index + 1}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-500">{strength.label}</span>
+                        <div className={`w-16 h-1.5 rounded-full ${strength.color}`}></div>
+                      </div>
                     </div>
+                    
+                    {account.username && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-gray-600">用户名</label>
+                        <div className="flex items-center space-x-1 md:space-x-2">
+                          <input
+                            type="text"
+                            value={account.username}
+                            readOnly
+                            className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                          />
+                          <button
+                            onClick={() => onCopy(account.username, '用户名')}
+                            className="p-2 md:p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm flex-shrink-0"
+                          >
+                            <Icon name="Copy" className="w-4 h-4 md:w-5 md:h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {account.password && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-gray-600">密码</label>
+                        <div className="flex items-center space-x-1 md:space-x-2">
+                          <input
+                            type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
+                            value={account.password}
+                            readOnly
+                            className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
+                          />
+                          <button
+                            onClick={() => setShowPassword(prev => ({
+                              ...prev,
+                              [`${selectedItem.id}-${index}`]: !prev[`${selectedItem.id}-${index}`]
+                            }))}
+                            className="p-2 md:p-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex-shrink-0"
+                          >
+                            <Icon name={showPassword[`${selectedItem.id}-${index}`] ? 'EyeOff' : 'Eye'} className="w-4 h-4 md:w-5 md:h-5" />
+                          </button>
+                          <button
+                            onClick={() => onCopy(account.password, '密码')}
+                            className="p-2 md:p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm flex-shrink-0"
+                          >
+                            <Icon name="Copy" className="w-4 h-4 md:w-5 md:h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {account.note && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-gray-600">备注</label>
+                        <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200 whitespace-pre-wrap">
+                          {account.note}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  
-                  {account.username && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600">用户名</label>
-                      <div className="flex items-center space-x-1 md:space-x-2">
-                        <input
-                          type="text"
-                          value={account.username}
-                          readOnly
-                          className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
-                        />
-                        <button
-                          onClick={() => onCopy(account.username, '用户名')}
-                          className="p-2 md:p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm flex-shrink-0"
-                        >
-                          <Icon name="Copy" className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {account.password && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600">密码</label>
-                      <div className="flex items-center space-x-1 md:space-x-2">
-                        <input
-                          type={showPassword[`${selectedItem.id}-${index}`] ? 'text' : 'password'}
-                          value={account.password}
-                          readOnly
-                          className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg text-sm"
-                        />
-                        <button
-                          onClick={() => setShowPassword(prev => ({
-                            ...prev,
-                            [`${selectedItem.id}-${index}`]: !prev[`${selectedItem.id}-${index}`]
-                          }))}
-                          className="p-2 md:p-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex-shrink-0"
-                        >
-                          <Icon name={showPassword[`${selectedItem.id}-${index}`] ? 'EyeOff' : 'Eye'} className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
-                        <button
-                          onClick={() => onCopy(account.password, '密码')}
-                          className="p-2 md:p-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-sm flex-shrink-0"
-                        >
-                          <Icon name="Copy" className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {account.note && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600">备注</label>
-                      <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200 whitespace-pre-wrap">
-                        {account.note}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                         );
+                );
               })
             ) : (
               <div className="text-center py-12 text-gray-400">
