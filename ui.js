@@ -203,8 +203,8 @@ const Sidebar = ({
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 ${category.icon && category.icon.startsWith('data:image') ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
-                    {category.icon && category.icon.startsWith('data:image') ? (
+                                    <div className={`w-10 h-10 ${category.icon && typeof category.icon === 'string' && category.icon.startsWith('data:image') && category.icon.length > 20 ? 'bg-white border-2 border-gray-200' : `bg-gradient-to-br ${category.color}`} rounded-lg flex items-center justify-center overflow-hidden shadow-sm`}>
+                    {category.icon && typeof category.icon === 'string' && category.icon.startsWith('data:image') && category.icon.length > 20 ? (
                       <img src={category.icon} alt={category.name} className="w-full h-full object-contain" />
                     ) : (
                       <span className="text-xl">{category.icon || '🔑'}</span>

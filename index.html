@@ -4,24 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>密码管理器</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="style.css" rel="stylesheet">
+  
+  <!-- 使用预构建的 Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- React 和 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
 <body>
   <div id="root"></div>
   
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- 关键修复：按正确顺序加载 -->
+  <!-- 加载所有 JS 文件 -->
+  <script src="icons.js"></script>
+  <script src="utils.js"></script>
   <script src="api-client.js"></script>
-  <script src="icons.js" type="text/babel"></script>
-  <script src="utils.js" type="text/babel"></script>
-  <script src="auth.js" type="text/babel"></script>
-  <script src="modals.js" type="text/babel"></script>
-  <script src="actions.js" type="text/babel"></script>
-  <script src="ui.js" type="text/babel"></script>
-  <script src="app.js" type="text/babel"></script>
+  <script src="auth.js"></script>
+  <script src="ui.js"></script>
+  <script src="modals.js"></script>
+  <script src="actions.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
