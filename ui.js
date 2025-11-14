@@ -148,7 +148,7 @@ const Sidebar = ({
               <p className="text-sm text-gray-500">{totalPasswords} 项</p>
             </div>
           </div>
-          {isMobile && (
+          {!isMobile && (
             <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
               <Icon name="X" />
             </button>
@@ -251,11 +251,11 @@ const Sidebar = ({
                       <Icon name="GripVertical" className="w-4 h-4" />
                     </button>
                     
-                       <button
+                    <button
                       onClick={() => {
                         setSelectedItem(item);
                         if (isMobile) {
-                          setTimeout(() => setSidebarOpen(false), 50);
+                          setSidebarOpen(false);
                         }
                       }}
                       className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
@@ -332,11 +332,12 @@ const Sidebar = ({
                           >
                             <Icon name="GripVertical" className="w-4 h-4" />
                           </button>
-                           <button
+                          
+                          <button
                             onClick={() => {
                               setSelectedItem(item);
                               if (isMobile) {
-                                setTimeout(() => setSidebarOpen(false), 50);
+                                setSidebarOpen(false);
                               }
                             }}
                             className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
