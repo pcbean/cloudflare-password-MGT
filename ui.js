@@ -120,6 +120,7 @@ const Sidebar = ({
 
   const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.stopPropagation();
+	e.preventDefault(); 
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     
     setDragState({
