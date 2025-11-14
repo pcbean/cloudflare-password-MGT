@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>密码管理器</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
   <div id="root"></div>
@@ -14,18 +14,14 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- 1. 先加载工具函数 -->
-  <script type="text/babel" src="utils.js"></script>
-  <script type="text/babel" src="api-client.js"></script>
-  <script type="text/babel" src="actions.js"></script>
-  
-  <!-- 2. 然后加载 UI 组件 -->
-  <script type="text/babel" src="icons.js"></script>
-  <script type="text/babel" src="auth.js"></script>
-  <script type="text/babel" src="modals.js"></script>
-  <script type="text/babel" src="ui.js"></script>
-  
-  <!-- 3. 最后加载主应用 -->
-  <script type="text/babel" src="app.js"></script>
+  <!-- 关键修复：按正确顺序加载 -->
+  <script src="api-client.js"></script>
+  <script src="icons.js" type="text/babel"></script>
+  <script src="utils.js" type="text/babel"></script>
+  <script src="auth.js" type="text/babel"></script>
+  <script src="modals.js" type="text/babel"></script>
+  <script src="actions.js" type="text/babel"></script>
+  <script src="ui.js" type="text/babel"></script>
+  <script src="app.js" type="text/babel"></script>
 </body>
 </html>
