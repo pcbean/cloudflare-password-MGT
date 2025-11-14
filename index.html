@@ -4,89 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>密码管理器</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    @keyframes slide-in {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    .animate-slide-in {
-      animation: slide-in 0.3s ease-out;
-    }
-    
-    /* 禁用浏览器默认的滑动后退 */
-    body {
-      overscroll-behavior-x: none;
-    }
-  </style>
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
   <div id="root"></div>
   
-  <script>
-    // 屏幕边缘滑动手势管理
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchCurrentX = 0;
-    let isSidebarGesture = false;
-    
-    document.addEventListener('touchstart', function(e) {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      
-      // 检测是否从屏幕左边缘开始滑动(20px范围内)
-      if (touchStartX < 20) {
-        isSidebarGesture = true;
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    document.addEventListener('touchmove', function(e) {
-      if (!isSidebarGesture) return;
-      
-      touchCurrentX = e.touches[0].clientX;
-      const deltaX = touchCurrentX - touchStartX;
-      const deltaY = e.touches[0].clientY - touchStartY;
-      
-      // 如果是横向滑动(向右滑动超过30px且横向移动大于纵向移动)
-      if (deltaX > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    document.addEventListener('touchend', function(e) {
-      if (!isSidebarGesture) return;
-      
-      const deltaX = touchCurrentX - touchStartX;
-      
-      // 如果向右滑动超过50px,触发打开侧边栏
-      if (deltaX > 50) {
-        window.dispatchEvent(new CustomEvent('openSidebarGesture'));
-      }
-      
-      isSidebarGesture = false;
-      touchStartX = 0;
-      touchStartY = 0;
-      touchCurrentX = 0;
-    });
-  </script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
+  <!-- 关键修复：按正确顺序加载 -->
   <script src="api-client.js"></script>
-  <script src="icons.js"></script>
-  <script src="utils.js"></script>
-  <script src="actions.js"></script>
-  <script src="auth.js"></script>
-  <script src="modals.js"></script>
-  <script src="ui.js"></script>
-  <script src="app.js"></script>
+  <script src="icons.js" type="text/babel"></script>
+  <script src="utils.js" type="text/babel"></script>
+  <script src="auth.js" type="text/babel"></script>
+  <script src="modals.js" type="text/babel"></script>
+  <script src="actions.js" type="text/babel"></script>
+  <script src="ui.js" type="text/babel"></script>
+  <script src="app.js" type="text/babel"></script>
 </body>
 </html>
