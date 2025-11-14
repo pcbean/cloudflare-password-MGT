@@ -1,6 +1,21 @@
 // 主界面 UI 组件
 const { useState, useEffect } = React;
 
+// 导入工具函数
+const getPasswordStrength = window.getPasswordStrength || ((password) => {
+  if (!password) return { strength: 0, label: '', color: 'bg-gray-300' };
+  let strength = 0;
+  if (password.length >= 8) strength++;
+  if (password.length >= 12) strength++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+  if (/\d/.test(password)) strength++;
+  if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+  if (strength <= 2) return { strength, label: '弱', color: 'bg-red-500' };
+  if (strength <= 3) return { strength, label: '中', color: 'bg-yellow-500' };
+  return { strength, label: '强', color: 'bg-green-500' };
+});
+
 // 通知组件
 const Notification = ({ notification }) => {
   if (!notification) return null;
