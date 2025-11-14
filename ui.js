@@ -1,6 +1,11 @@
 // 主界面 UI 组件
 const { useState, useEffect } = React;
 
+// 引用全局工具函数
+const passwordStrengthChecker = typeof getPasswordStrength === 'function' 
+  ? getPasswordStrength 
+  : (password) => ({ strength: 0, label: '', color: 'bg-gray-300' });
+
 // 通知组件
 const Notification = ({ notification }) => {
   if (!notification) return null;
@@ -515,8 +520,8 @@ const PasswordDetail = ({
 
         <div className="p-6">
           <div className="space-y-4">
-            {selectedItem.accounts?.map((account, index) => {
-              const strength = getPasswordStrength(account.password);
+                       {selectedItem.accounts?.map((account, index) => {
+              const strength = passwordStrengthChecker(account.password);
               return (
                 <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
                   
