@@ -137,22 +137,15 @@ function PasswordManager() {
     fetchEnvUsers();
   }, []);
 
-  const handleLogin = (username, password) => {
-  if (adminUsers[username] && adminUsers[username] === password) {
-    setIsAuthenticated(true);
-    setCurrentUser(username);
-    showNotificationFunc(`欢迎回来, ${username}!`);
-    
-    // 平板端登录后打开侧边栏
-    if (window.innerWidth < 768) {
-      setSidebarOpen(true);
-    }
-    
-    return true;
-  } else {
-    return false;
-  }
-};
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) setSidebarOpen(false);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
