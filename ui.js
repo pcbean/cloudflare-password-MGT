@@ -105,9 +105,11 @@ const Sidebar = ({
     };
   }, [dragState.isDragging, dragState.overIndex, dragState.draggedIndex, dragState.categoryId, dragState.subcategoryId, onReorderCategories, onReorderSubcategories, onReorderItems]);
 
-  const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+    const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
+    if (isMobile) return; // 手机端直接返回,不处理任何拖拽
+    
     e.stopPropagation();
-    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    const clientY = e.clientY;
     
     setDragState({
       isDragging: true,
@@ -148,7 +150,7 @@ const Sidebar = ({
               <p className="text-sm text-gray-500">{totalPasswords} 项</p>
             </div>
           </div>
-          {!isMobile && (
+          {isMobile && (
             <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
               <Icon name="X" />
             </button>
