@@ -520,8 +520,9 @@ const PasswordDetail = ({
 
         <div className="p-6">
           <div className="space-y-4">
-                       {selectedItem.accounts?.map((account, index) => {
-  const strength = passwordStrengthChecker(account.password);
+            {selectedItem.accounts && selectedItem.accounts.length > 0 ? (
+              selectedItem.accounts.map((account, index) => {
+                const strength = passwordStrengthChecker(account.password);
   return (
                 <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
                   
@@ -591,8 +592,13 @@ const PasswordDetail = ({
                     </div>
                   )}
                 </div>
-              );
-            })}
+                         );
+              })
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <p>该项目还没有账户信息</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
