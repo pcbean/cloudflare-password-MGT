@@ -617,3 +617,10 @@ const PasswordDetail = ({
     </div>
   );
 };
+// 暴露到全局
+window.getPasswordStrength = getPasswordStrength;
+window.calculateOverallSecurity = calculateOverallSecurity;
+window.getFaviconUrl = getFaviconUrl;
+window.copyToClipboard = copyToClipboard;
+window.exportToCSV = exportToCSV;
+window.filterItems = filterItems;
