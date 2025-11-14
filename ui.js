@@ -251,11 +251,11 @@ const Sidebar = ({
                       <Icon name="GripVertical" className="w-4 h-4" />
                     </button>
                     
-                    <button
+                       <button
                       onClick={() => {
                         setSelectedItem(item);
                         if (isMobile) {
-                          setSidebarOpen(false);
+                          setTimeout(() => setSidebarOpen(false), 50);
                         }
                       }}
                       className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
@@ -332,12 +332,11 @@ const Sidebar = ({
                           >
                             <Icon name="GripVertical" className="w-4 h-4" />
                           </button>
-                          
-                          <button
+                           <button
                             onClick={() => {
                               setSelectedItem(item);
                               if (isMobile) {
-                                setSidebarOpen(false);
+                                setTimeout(() => setSidebarOpen(false), 50);
                               }
                             }}
                             className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
