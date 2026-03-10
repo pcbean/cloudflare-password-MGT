@@ -47,17 +47,9 @@ const calculateOverallSecurity = (categories) => {
   };
 };
 
-// 获取网站图标
+// 获取网站图标 (现已废弃默认地球图标，改从 ui.js 取首字母大写)
 const getFaviconUrl = (websiteUrl) => {
-  try {
-    const url = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`);
-    const domain = url.hostname;
-    // 使用 Google Favicon API
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-  } catch (error) {
-    console.error('获取图标失败:', error);
-    return null;
-  }
+  return null;
 };
 
 // 复制到剪贴板
@@ -69,7 +61,7 @@ const copyToClipboard = (text, type, showNotification) => {
 // 导出为 CSV
 const exportToCSV = (categories, currentUser, showNotification) => {
   let csvContent = "\ufeff分类,子分类,网站,网址,用户名,密码,备注\n";
-  
+
   categories.forEach(category => {
     category.subcategories?.forEach(subcategory => {
       subcategory.items?.forEach(item => {
@@ -91,7 +83,7 @@ const exportToCSV = (categories, currentUser, showNotification) => {
 // 搜索过滤
 const filterItems = (categories, searchTerm) => {
   if (!searchTerm) return categories;
-  
+
   return categories.map(category => ({
     ...category,
     subcategories: category.subcategories.map(sub => ({
@@ -114,7 +106,7 @@ const addNewItem = async (newItem, categories, saveData, showNotification) => {
 
   const updatedCategories = [...categories];
   let categoryIndex = updatedCategories.findIndex(c => c.name === newItem.category);
-  
+
   if (categoryIndex === -1) {
     const colors = [
       'from-blue-500 to-cyan-500',
@@ -147,7 +139,7 @@ const addNewItem = async (newItem, categories, saveData, showNotification) => {
   }
 
   const finalUrl = newItem.url || (newItem.website.startsWith('http') ? newItem.website : `https://${newItem.website}`);
-  
+
   updatedCategories[categoryIndex].subcategories[subcategoryIndex].items.push({
     id: Date.now().toString(),
     website: newItem.website,

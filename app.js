@@ -172,9 +172,22 @@ function PasswordManager() {
         console.log('解析后的数据:', data);
         console.log('分类数量:', data.categories?.length);
 
-        if (data.categories && data.categories.length > 0) {
-          console.log('第一个分类:', data.categories[0]);
-          console.log('第一个分类的子分类:', data.categories[0].subcategories);
+        if (data.categories) {
+          // 清理旧的默认地球图标
+          data.categories.forEach(cat => {
+            cat.subcategories?.forEach(sub => {
+              sub.items?.forEach(item => {
+                if (item.favicon && item.favicon.includes('google.com/s2/favicons')) {
+                  item.favicon = null;
+                }
+              });
+            });
+          });
+
+          if (data.categories.length > 0) {
+            console.log('第一个分类:', data.categories[0]);
+            console.log('第一个分类的子分类:', data.categories[0].subcategories);
+          }
         }
 
         setCategories(data.categories || []);
