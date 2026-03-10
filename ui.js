@@ -19,11 +19,10 @@ const getPasswordStrength = window.getPasswordStrength || ((password) => {
 // 通知组件
 const Notification = ({ notification }) => {
   if (!notification) return null;
-  
+
   return (
-    <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2 ${
-      notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-    } text-white animate-slide-in`}>
+    <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+      } text-white animate-slide-in`}>
       <Icon name={notification.type === 'success' ? 'Check' : 'AlertCircle'} />
       <span>{notification.message}</span>
     </div>
@@ -31,12 +30,12 @@ const Notification = ({ notification }) => {
 };
 
 // 侧边栏组件
-const Sidebar = ({ 
-  sidebarOpen, 
-  setSidebarOpen, 
-  isMobile, 
-  totalPasswords, 
-  searchTerm, 
+const Sidebar = ({
+  sidebarOpen,
+  setSidebarOpen,
+  isMobile,
+  totalPasswords,
+  searchTerm,
   setSearchTerm,
   filteredCategories,
   expandedCategories,
@@ -82,7 +81,7 @@ const Sidebar = ({
     const handleEnd = () => {
       if (dragState.isDragging && dragState.overIndex !== null && dragState.draggedIndex !== dragState.overIndex) {
         const { dragType, draggedIndex, overIndex, categoryId, subcategoryId } = dragState;
-        
+
         if (dragType === 'category') {
           onReorderCategories(draggedIndex, overIndex);
         } else if (dragType === 'subcategory' && categoryId) {
@@ -121,7 +120,7 @@ const Sidebar = ({
   const handleDragStart = (e, type, item, index, categoryId = null, subcategoryId = null) => {
     e.stopPropagation();
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-    
+
     setDragState({
       isDragging: true,
       draggedItem: item,
@@ -149,10 +148,9 @@ const Sidebar = ({
   if (!sidebarOpen) return null;
 
   return (
-    <div className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} ${
-      isMobile ? 'fixed z-40 h-full' : 'relative'
-    } bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col shadow-sm`}>
-      
+    <div className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} ${isMobile ? 'fixed z-40 h-full' : 'relative'
+      } bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col shadow-sm`}>
+
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
@@ -188,7 +186,7 @@ const Sidebar = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {filteredCategories.map((category, categoryIndex) => (
           <div key={category.id} className="space-y-1">
-            <div 
+            <div
               className="w-full flex items-center gap-2"
               onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'category' && handleDragOver(e, categoryIndex)}
               style={{
@@ -208,7 +206,7 @@ const Sidebar = ({
               >
                 <Icon name="GripVertical" className="w-4 h-4" />
               </button>
-              
+
               <button
                 onClick={() => toggleCategory(category.id)}
                 className="flex-1 flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition group"
@@ -225,7 +223,7 @@ const Sidebar = ({
                 </div>
                 <Icon name={expandedCategories[category.id] ? 'ChevronDown' : 'ChevronRight'} className="w-4 h-4 text-gray-400" />
               </button>
-              
+
               <button
                 onClick={() => onSelectIcon('category', category.id)}
                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
@@ -241,12 +239,12 @@ const Sidebar = ({
                 <Icon name="Plus" className="w-4 h-4" />
               </button>
             </div>
-            
+
             {expandedCategories[category.id] && (
               <>
                 {category.subcategories?.find(sub => sub.name === '默认')?.items?.map((item, itemIndex) => (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     className="flex items-center gap-2"
                     onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'item' && handleDragOver(e, itemIndex)}
                     style={{
@@ -266,7 +264,7 @@ const Sidebar = ({
                     >
                       <Icon name="GripVertical" className="w-4 h-4" />
                     </button>
-                    
+
                     <button
                       onClick={() => {
                         setSelectedItem(item);
@@ -274,13 +272,16 @@ const Sidebar = ({
                           setSidebarOpen(false);
                         }
                       }}
-                      className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
-                        selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-                      }`}
+                      className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                        }`}
                       style={{ WebkitTapHighlightColor: 'transparent' }}
                     >
-                      <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                        {item.website[0]?.toUpperCase()}
+                      <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm overflow-hidden">
+                        {item.favicon ? (
+                          <img src={item.favicon} alt={item.website} className="w-full h-full object-contain" />
+                        ) : (
+                          item.website[0]?.toUpperCase()
+                        )}
                       </div>
                       <div className="flex-1 text-left">
                         <div className="text-sm font-semibold text-gray-800">{item.website}</div>
@@ -294,7 +295,7 @@ const Sidebar = ({
                   ?.filter(sub => sub.name !== '默认')
                   .map((subcategory, subcategoryIndex) => (
                     <div key={subcategory.id} className="ml-6 space-y-1">
-                      <div 
+                      <div
                         className="flex items-center gap-2"
                         onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'subcategory' && handleDragOver(e, subcategoryIndex)}
                         style={{
@@ -314,15 +315,15 @@ const Sidebar = ({
                         >
                           <Icon name="GripVertical" className="w-4 h-4" />
                         </button>
-                        
+
                         <div className="flex-1 flex items-center justify-between px-3 py-2">
                           <div className="text-xs font-semibold text-gray-500">{subcategory.name}</div>
                         </div>
                       </div>
-                      
+
                       {subcategory.items?.map((item, itemIndex) => (
-                        <div 
-                          key={item.id} 
+                        <div
+                          key={item.id}
                           className="flex items-center gap-2"
                           onMouseEnter={(e) => dragState.isDragging && dragState.dragType === 'item' && handleDragOver(e, itemIndex)}
                           style={{
@@ -348,7 +349,7 @@ const Sidebar = ({
                           >
                             <Icon name="GripVertical" className="w-4 h-4" />
                           </button>
-                          
+
                           <button
                             onClick={() => {
                               setSelectedItem(item);
@@ -356,13 +357,16 @@ const Sidebar = ({
                                 setSidebarOpen(false);
                               }
                             }}
-                            className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${
-                              selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
-                            }`}
+                            className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition ${selectedItem?.id === item.id ? 'bg-gray-100 border border-gray-200' : 'hover:bg-gray-50'
+                              }`}
                             style={{ WebkitTapHighlightColor: 'transparent' }}
                           >
-                            <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm">
-                              {item.website[0]?.toUpperCase()}
+                            <div className="w-10 h-10 bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center text-sm font-bold text-gray-600 shadow-sm overflow-hidden">
+                              {item.favicon ? (
+                                <img src={item.favicon} alt={item.website} className="w-full h-full object-contain" />
+                              ) : (
+                                item.website[0]?.toUpperCase()
+                              )}
                             </div>
                             <div className="flex-1 text-left">
                               <div className="text-sm font-semibold text-gray-800">{item.website}</div>
@@ -408,18 +412,18 @@ const Sidebar = ({
 };
 
 // 顶部栏组件
-const TopBar = ({ 
-  sidebarOpen, 
-  setSidebarOpen, 
-  selectedItem, 
-  currentUser, 
-  onLogout 
+const TopBar = ({
+  sidebarOpen,
+  setSidebarOpen,
+  selectedItem,
+  currentUser,
+  onLogout
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center space-x-4">
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)} 
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 hover:bg-gray-100 rounded-lg transition"
         >
           <Icon name="Menu" className="w-6 h-6" />
@@ -459,11 +463,11 @@ const EmptyState = () => {
 };
 
 // 密码详情组件
-const PasswordDetail = ({ 
-  selectedItem, 
-  showPassword, 
-  setShowPassword, 
-  onCopy, 
+const PasswordDetail = ({
+  selectedItem,
+  showPassword,
+  setShowPassword,
+  onCopy,
   onDelete,
   editingAccount,
   onToggleEdit,
@@ -477,19 +481,23 @@ const PasswordDetail = ({
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        
+
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-2xl text-white font-bold shadow-lg">
-                {selectedItem.website[0]?.toUpperCase()}
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-2xl text-white font-bold shadow-lg overflow-hidden">
+                {selectedItem.favicon ? (
+                  <img src={selectedItem.favicon} alt={selectedItem.website} className="w-full h-full object-contain bg-white" />
+                ) : (
+                  selectedItem.website[0]?.toUpperCase()
+                )}
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">{selectedItem.website}</h2>
-                <a 
-                  href={selectedItem.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={selectedItem.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-sm text-orange-600 hover:underline"
                 >
                   {selectedItem.url}
@@ -535,7 +543,7 @@ const PasswordDetail = ({
               const strength = getPasswordStrength(account.password);
               return (
                 <div key={index} className="bg-gray-50 rounded-xl p-4 md:p-5 space-y-4 border border-gray-200">
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-gray-700">账户 {index + 1}</span>
                     <div className="flex items-center space-x-2">
@@ -543,7 +551,7 @@ const PasswordDetail = ({
                       <div className={`w-16 h-1.5 rounded-full ${strength.color}`}></div>
                     </div>
                   </div>
-                  
+
                   {account.username && (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-gray-600">用户名</label>

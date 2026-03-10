@@ -6,11 +6,11 @@ const LoginPage = ({ onLogin }) => {
   const [loginPassword, setLoginPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage(''); // 清除之前的错误信息
-    const result = onLogin(loginUsername, loginPassword);
-    
+    const result = await onLogin(loginUsername, loginPassword);
+
     // 如果登录失败,显示错误信息
     if (result === false) {
       setErrorMessage('用户名或密码错误,请重试');
@@ -29,7 +29,7 @@ const LoginPage = ({ onLogin }) => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">密码管理器</h1>
           <p className="text-gray-500">安全存储您的所有密码</p>
         </div>
-        
+
         {/* 错误提示 */}
         {errorMessage && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2 animate-slide-in">
@@ -37,7 +37,7 @@ const LoginPage = ({ onLogin }) => {
             <span className="text-sm text-red-600 font-medium">{errorMessage}</span>
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">用户名</label>
@@ -59,17 +59,17 @@ const LoginPage = ({ onLogin }) => {
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition"
             />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition transform hover:scale-[1.02]"
           >
             解锁
           </button>
         </form>
-        
+
         <div className="mt-6 p-4 bg-gray-50 rounded-xl">
           <p className="text-xs text-gray-600 text-center">
-            这是一个私人用途的密码管理器:<br/>
+            这是一个私人用途的密码管理器:<br />
           </p>
         </div>
       </div>

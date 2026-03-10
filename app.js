@@ -4,7 +4,7 @@ const { useState, useEffect } = React;
 // 安全状态进度条组件
 const SecurityProgressBar = ({ categories }) => {
   const security = calculateOverallSecurity(categories);
-  
+
   if (security.total === 0) return null;
 
   return (
@@ -14,31 +14,31 @@ const SecurityProgressBar = ({ categories }) => {
           <h3 className="text-sm font-semibold text-gray-700">安全状态总览</h3>
           <span className="text-xs text-gray-500">{security.total} 个密码</span>
         </div>
-        
+
         <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden flex">
           {security.strong > 0 && (
-            <div 
-              className="bg-green-500 h-full transition-all duration-500" 
+            <div
+              className="bg-green-500 h-full transition-all duration-500"
               style={{ width: `${security.strongPercent}%` }}
               title={`强密码: ${security.strong} 个 (${security.strongPercent}%)`}
             ></div>
           )}
           {security.medium > 0 && (
-            <div 
-              className="bg-yellow-500 h-full transition-all duration-500" 
+            <div
+              className="bg-yellow-500 h-full transition-all duration-500"
               style={{ width: `${security.mediumPercent}%` }}
               title={`中等密码: ${security.medium} 个 (${security.mediumPercent}%)`}
             ></div>
           )}
           {security.weak > 0 && (
-            <div 
-              className="bg-red-500 h-full transition-all duration-500" 
+            <div
+              className="bg-red-500 h-full transition-all duration-500"
               style={{ width: `${security.weakPercent}%` }}
               title={`弱密码: ${security.weak} 个 (${security.weakPercent}%)`}
             ></div>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between mt-3 text-xs">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
@@ -95,7 +95,6 @@ const SAMPLE_DATA = {
 function PasswordManager() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [adminUsers, setAdminUsers] = useState({});
   const [categories, setCategories] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -116,25 +115,12 @@ function PasswordManager() {
   const [itemToEdit, setItemToEdit] = useState(null);
 
   useEffect(() => {
-    const fetchEnvUsers = async () => {
-      try {
-        const response = await fetch('/api/get-env-users');
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          setAdminUsers({}); 
-          return;
-        }
-        const data = await response.json();
-        if (data.users && Object.keys(data.users).length > 0) {
-          setAdminUsers(data.users);
-        } else {
-          setAdminUsers({}); 
-        }
-      } catch (error) {
-        setAdminUsers({}); 
-      }
-    };
-    fetchEnvUsers();
+    const token = localStorage.getItem('auth_token');
+    const user = localStorage.getItem('auth_username');
+    if (token && user) {
+      setIsAuthenticated(true);
+      setCurrentUser(user);
+    }
   }, []);
 
   useEffect(() => {
@@ -180,17 +166,17 @@ function PasswordManager() {
     try {
       const result = await storage.get(`passwords_${currentUser}`);
       console.log('Storage 返回结果:', result);
-      
+
       if (result && result.value) {
         const data = JSON.parse(result.value);
         console.log('解析后的数据:', data);
         console.log('分类数量:', data.categories?.length);
-        
+
         if (data.categories && data.categories.length > 0) {
           console.log('第一个分类:', data.categories[0]);
           console.log('第一个分类的子分类:', data.categories[0].subcategories);
         }
-        
+
         setCategories(data.categories || []);
       } else {
         console.log('没有找到数据,使用示例数据');
@@ -223,30 +209,39 @@ function PasswordManager() {
     }
   };
 
-        const handleLogin = (username, password) => {
+  const handleLogin = async (username, password) => {
     console.log('=== 登录尝试 ===');
-    console.log('用户名:', username);
-    console.log('所有用户:', Object.keys(adminUsers));
-    
-    if (adminUsers[username] && adminUsers[username] === password) {
-      console.log('✅ 登录成功');
-      setIsAuthenticated(true);
-      setCurrentUser(username);
-      showNotificationFunc(`欢迎回来, ${username}!`);
-      
-      // 手机端登录后打开侧边栏
-      if (window.innerWidth < 768) {
-        setSidebarOpen(true);
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('auth_username', data.username);
+        console.log('✅ 登录成功');
+        setIsAuthenticated(true);
+        setCurrentUser(data.username);
+        showNotificationFunc(`欢迎回来, ${data.username}!`);
+
+        if (window.innerWidth < 768) {
+          setSidebarOpen(true);
+        }
+        return true;
       }
-      
-      return true;
-    } else {
       console.log('❌ 登录失败');
+      return false;
+    } catch (e) {
+      console.error('登录异常', e);
       return false;
     }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_username');
     setIsAuthenticated(false);
     setCurrentUser(null);
     setCategories([]);
@@ -267,7 +262,7 @@ function PasswordManager() {
         await saveData(categories);
         showNotificationFunc(`${field === 'username' ? '用户名' : '密码'}已更新`);
         setEditingAccount(prev => ({ ...prev, [key]: false }));
-        
+
         const updatedItem = categories
           .flatMap(c => c.subcategories.flatMap(s => s.items))
           .find(i => i.id === itemId);
@@ -304,7 +299,7 @@ function PasswordManager() {
       }))
     }));
     setCategories(updatedCategories);
-    
+
     const updatedItem = updatedCategories
       .flatMap(c => c.subcategories.flatMap(s => s.items))
       .find(i => i.id === itemId);
@@ -362,14 +357,14 @@ function PasswordManager() {
             })
           }))
         }));
-        
+
         await saveData(updatedCategories);
-        
+
         const updatedItem = updatedCategories
           .flatMap(c => c.subcategories.flatMap(s => s.items))
           .find(i => i.id === selectedItem.id);
         setSelectedItem(updatedItem);
-        
+
         showNotificationFunc('账户已添加');
       } else {
         const updatedCategories = await addNewPassword(
@@ -382,7 +377,7 @@ function PasswordManager() {
           await loadData();
         }
       }
-      
+
       setShowAddPasswordModal(false);
       setSelectedCategoryForAdd(null);
     } catch (error) {
@@ -472,11 +467,11 @@ function PasswordManager() {
 
   const handleIconSelect = async (iconData) => {
     if (!iconSelectorTarget) return;
-    
+
     const { type, id } = iconSelectorTarget;
-    
+
     if (type === 'category') {
-      const updatedCategories = categories.map(cat => 
+      const updatedCategories = categories.map(cat =>
         cat.id === id ? { ...cat, icon: iconData } : cat
       );
       await saveData(updatedCategories);
@@ -485,14 +480,14 @@ function PasswordManager() {
         ...cat,
         subcategories: cat.subcategories.map(sub => ({
           ...sub,
-          items: sub.items.map(item => 
+          items: sub.items.map(item =>
             item.id === id ? { ...item, favicon: iconData } : item
           )
         }))
       }));
       await saveData(updatedCategories);
     }
-    
+
     setShowIconSelectorModal(false);
     setIconSelectorTarget(null);
     showNotificationFunc('图标已更新');
@@ -519,7 +514,7 @@ function PasswordManager() {
         if (cat.id === editedData.categoryId) {
           if (!editedData.subcategoryId) {
             let defaultSub = cat.subcategories.find(sub => sub.name === '默认');
-            
+
             if (!defaultSub) {
               return {
                 ...cat,
@@ -547,7 +542,7 @@ function PasswordManager() {
               };
             }
           }
-          
+
           return {
             ...cat,
             subcategories: cat.subcategories.map(sub => {
@@ -582,15 +577,15 @@ function PasswordManager() {
   }
 
   const filteredCategories = filterItems(categories, searchTerm);
-  const totalPasswords = categories.reduce((acc, cat) => 
+  const totalPasswords = categories.reduce((acc, cat) =>
     acc + (cat.subcategories?.reduce((a, sub) => a + (sub.items?.length || 0), 0) || 0), 0
   );
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Notification notification={notification} />
-      
-      <Sidebar 
+
+      <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         isMobile={isMobile}
@@ -616,18 +611,18 @@ function PasswordManager() {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar 
+        <TopBar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           selectedItem={selectedItem}
           currentUser={currentUser}
           onLogout={handleLogout}
         />
-        
+
         <SecurityProgressBar categories={categories} />
 
         <div className="flex-1 overflow-y-auto p-2 md:p-4">
-          <PasswordDetail 
+          <PasswordDetail
             selectedItem={selectedItem}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -646,7 +641,7 @@ function PasswordManager() {
         </div>
       </div>
 
-      <CategoryManagementModal 
+      <CategoryManagementModal
         showModal={showCategoryModal}
         setShowModal={setShowCategoryModal}
         categories={categories}
@@ -654,7 +649,7 @@ function PasswordManager() {
         showNotification={showNotificationFunc}
       />
 
-      <AddPasswordModal 
+      <AddPasswordModal
         showModal={showAddPasswordModal}
         setShowModal={setShowAddPasswordModal}
         categories={categories}
@@ -662,7 +657,7 @@ function PasswordManager() {
         onAdd={handleAddPassword}
       />
 
-      <IconManagementModal 
+      <IconManagementModal
         showModal={showIconManagementModal}
         setShowModal={setShowIconManagementModal}
         icons={uploadedIcons}
@@ -670,14 +665,14 @@ function PasswordManager() {
         showNotification={showNotificationFunc}
       />
 
-      <IconSelectorModal 
+      <IconSelectorModal
         showModal={showIconSelectorModal}
         setShowModal={setShowIconSelectorModal}
         icons={uploadedIcons}
         onSelect={handleIconSelect}
       />
 
-      <EditItemModal 
+      <EditItemModal
         showModal={showEditItemModal}
         setShowModal={setShowEditItemModal}
         itemToEdit={itemToEdit}
