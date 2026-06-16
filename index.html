@@ -14,11 +14,26 @@
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script>
+    // 插件函数：自动将顶层 const/let 转为 var，避免多个 script 共享全局作用域时重复声明报错
+    var topLevelVarPlugin = function() {
+      return {
+        visitor: {
+          VariableDeclaration(path) {
+            if (path.node.kind === 'const' || path.node.kind === 'let') {
+              if (path.scope.block.type === 'Program') {
+                path.node.kind = 'var';
+              }
+            }
+          }
+        }
+      };
+    };
     // 注册使用 classic JSX runtime 的 preset，防止 Babel 自动生成 import 语句
     Babel.registerPreset('react-classic', {
       presets: [
         [Babel.availablePresets.react, { runtime: 'classic' }]
-      ]
+      ],
+      plugins: [topLevelVarPlugin]
     });
   </script>
 
