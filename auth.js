@@ -1,5 +1,5 @@
 // 登录认证组件
-const { useState } = React;
+var { useState } = React;
 
 const LoginPage = ({ onLogin }) => {
   const [loginUsername, setLoginUsername] = useState('');

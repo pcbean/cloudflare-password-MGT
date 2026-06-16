@@ -1,5 +1,5 @@
 // 二级页面模态框组件
-const { useState, useEffect } = React;
+var { useState, useEffect } = React;
 
 // 添加密码模态框
 const AddPasswordModal = ({ 

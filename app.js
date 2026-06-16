@@ -1,5 +1,5 @@
-﻿// 主应用入口
-const { useState, useEffect } = React;
+// 主应用入口
+var { useState, useEffect } = React;
 
 // 安全状态进度条组件
 const SecurityProgressBar = ({ categories }) => {

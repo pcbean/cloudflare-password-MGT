@@ -1,5 +1,5 @@
 // 主界面 UI 组件
-const { useState, useEffect } = React;
+var { useState, useEffect } = React;
 
 // 导入工具函数
 const getPasswordStrength = window.getPasswordStrength || ((password) => {

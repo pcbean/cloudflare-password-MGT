@@ -1,5 +1,5 @@
 // 功能操作模块
-const { useState } = React;
+var { useState } = React;
 
 // 添加新密码
 const addNewPassword = async (newPasswordData, categories, saveData, showNotification) => {
